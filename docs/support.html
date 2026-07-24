@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Support for ISS Tracker on iPhone." />
+    <title>Support — ISS Tracker</title>
+    <link rel="stylesheet" href="site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="logo" href="index.html">
+          <span class="logo-mark" aria-hidden="true">ISS</span>
+          ISS Tracker
+        </a>
+        <nav aria-label="Site">
+          <a href="index.html">Home</a>
+          <a href="support.html" aria-current="page">Support</a>
+          <a href="privacy.html">Privacy</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap prose">
+      <h1>Support</h1>
+      <p class="muted">Last updated: July 24, 2026</p>
+
+      <article class="card">
+        <h2>Contact</h2>
+        <p>
+          For bugs, feature ideas, or pass-time questions, open an issue on GitHub (preferred):
+        </p>
+        <p>
+          <a href="https://github.com/pmack99/ISSTracker/issues">github.com/pmack99/ISSTracker/issues</a>
+        </p>
+        <p class="muted">
+          For App Store support, add a dedicated email here before you submit (for example
+          <code>you@example.com</code>) and link it with <code>mailto:</code>.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Requirements</h2>
+        <ul>
+          <li>iPhone with iOS 17 or later</li>
+          <li>Internet connection for live position and pass predictions</li>
+          <li>Location permission (when in use) for “current location” pass searches</li>
+          <li>Notification permission for pass reminders (optional)</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Frequently asked questions</h2>
+
+        <h3>Pass times don’t match what I see</h3>
+        <p>
+          Visible passes depend on sky clarity, city lights, and the station’s brightness.
+          Predictions come from N2YO; a minute or two of difference versus other apps can
+          happen. Try a darker viewing spot and check max elevation (higher is easier to see).
+        </p>
+
+        <h3>Live map position seems delayed</h3>
+        <p>
+          Position updates about every 30 seconds from
+          <a href="https://wheretheiss.at/">Where The ISS At</a>. The marker animates
+          smoothly between updates.
+        </p>
+
+        <h3>Notifications aren’t firing</h3>
+        <p>
+          Check Settings → Notifications → ISS Tracker. Reminders are scheduled locally when
+          you run a pass search; search again after changing location or if you cleared
+          notifications.
+        </p>
+
+        <h3>“N2YO API key is missing” (developers)</h3>
+        <p>
+          Pass search needs a personal N2YO key in
+          <code>Config/Secrets.xcconfig</code>. See the
+          <a href="https://github.com/pmack99/ISSTracker#open-in-xcode">README on GitHub</a>.
+        </p>
+
+        <h3>Widget or Live Activity</h3>
+        <p>
+          Run a pass search for a saved location so the app can publish the next pass to
+          the widget and App Group. Live Activity appears when a pass is synced and supported
+          on your device.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Data &amp; privacy</h2>
+        <p>
+          See our <a href="privacy.html">Privacy Policy</a> for what the app collects and
+          how third-party APIs are used.
+        </p>
+      </article>
+    </main>
+
+    <footer class="site-footer wrap">
+      <p><a href="index.html">← Back to ISS Tracker</a></p>
+    </footer>
+  </body>
+</html>

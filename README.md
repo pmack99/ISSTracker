@@ -28,6 +28,17 @@ If the key was ever committed to Git, **rotate it** in your N2YO account and use
 - Apple **Core Location** / **CLGeocoder** — geocoding
 - [NASA Image and Video Library](https://images.nasa.gov/) — photos
 
+## App Store web pages
+
+Static **marketing**, **support**, and **privacy** pages live in [`docs/`](docs/). To publish on GitHub Pages:
+
+1. On GitHub: **Settings → Pages → Build from branch** → branch `main`, folder **`/docs`**.
+2. After deploy, URLs are typically:
+   - Marketing: `https://pmack99.github.io/ISSTracker/`
+   - Support: `https://pmack99.github.io/ISSTracker/support.html`
+   - Privacy: `https://pmack99.github.io/ISSTracker/privacy.html`
+3. Add your real support email in `docs/support.html` before submitting to the App Store.
+
 ## Related repo
 
 Web version: [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew_ISS_Tracker)
