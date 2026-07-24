@@ -22,7 +22,7 @@ struct AboutView: View {
                     Group {
                         Text("Improvements in this app")
                             .font(.headline)
-                        Text("• Real altitude, speed, and visibility on the live map\n• “Use my location” for pass predictions\n• Lists every upcoming pass, not just one\n• Search history saved on your device (no shared Firebase log)\n• Correct N2YO API URLs (the web app’s host format was outdated)")
+                        Text("• Real altitude, speed, and visibility on the live map\n• “Use my location” for pass predictions\n• Local pass reminders before overhead flyovers\n• Lists every upcoming pass, not just one\n• Search history saved on your device (no shared Firebase log)\n• Correct N2YO API URLs (the web app’s host format was outdated)")
                     }
                 }
                 .padding()

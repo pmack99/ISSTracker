@@ -236,20 +236,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A100000B2F0000010000000B /* Build configuration list for PBXProject "ISSTracker" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A100000C2F0000010000000C /* Debug */,
-				A100000D2F0000010000000D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A10000072F00000100000007 /* Build configuration list for PBXNativeTarget "ISSTracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A100000E2F0000010000000E /* Debug */,
 				A100000F2F0000010000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A100000B2F0000010000000B /* Build configuration list for PBXProject "ISSTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000C2F0000010000000C /* Debug */,
+				A100000D2F0000010000000D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

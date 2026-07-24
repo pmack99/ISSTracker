@@ -5,13 +5,50 @@ import SwiftUI
 struct PassesView: View {
     @Environment(ISSTrackerStore.self) private var store
     @Environment(LocationManager.self) private var locationManager
+    @Environment(PassNotificationService.self) private var passNotifications
     @Environment(\.modelContext) private var modelContext
 
     @State private var searchText = ""
 
+    private let leadTimeOptions = [5, 10, 15, 30]
+
     var body: some View {
+        @Bindable var notifications = passNotifications
+
         NavigationStack {
             List {
+                Section {
+                    Toggle("Remind me before passes", isOn: $notifications.notificationsEnabled)
+                        .onChange(of: passNotifications.notificationsEnabled) { _, enabled in
+                            Task { await handleNotificationsToggled(enabled) }
+                        }
+
+                    if passNotifications.notificationsEnabled {
+                        Picker("Notify", selection: $notifications.leadTimeMinutes) {
+                            ForEach(leadTimeOptions, id: \.self) { minutes in
+                                Text("\(minutes) minutes before").tag(minutes)
+                            }
+                        }
+                        .onChange(of: passNotifications.leadTimeMinutes) { _, _ in
+                            Task { await rescheduleNotificationsIfNeeded() }
+                        }
+                    }
+
+                    if passNotifications.authorizationStatus == .denied {
+                        Text("Notifications are off in Settings. Enable them for ISS Tracker to get pass reminders.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    } else if let summary = passNotifications.lastScheduleSummary {
+                        Text(summary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Alerts")
+                } footer: {
+                    Text("After you search for passes, reminders are scheduled for upcoming visible passes at this location.")
+                }
+
                 Section {
                     HStack {
                         TextField("City or zip code", text: $searchText)
@@ -73,6 +110,25 @@ struct PassesView: View {
         }
     }
 
+    private func handleNotificationsToggled(_ enabled: Bool) async {
+        if enabled {
+            let granted = await passNotifications.requestAuthorization()
+            if granted {
+                await rescheduleNotificationsIfNeeded()
+            }
+        } else {
+            passNotifications.cancelScheduledPasses()
+        }
+    }
+
+    private func rescheduleNotificationsIfNeeded() async {
+        guard passNotifications.notificationsEnabled,
+              let label = store.lastSearchLabel,
+              !store.passes.isEmpty
+        else { return }
+        await passNotifications.schedulePasses(store.passes, placeName: label)
+    }
+
     private func searchByText() async {
         do {
             let result = try await locationManager.geocode(query: searchText)
@@ -80,7 +136,8 @@ struct PassesView: View {
                 placeName: result.name,
                 latitude: result.coordinate.latitude,
                 longitude: result.coordinate.longitude,
-                modelContext: modelContext
+                modelContext: modelContext,
+                notificationService: passNotifications
             )
         } catch {
             store.passesError = "Could not find that location. Try a city and state or zip code."
@@ -106,7 +163,8 @@ struct PassesView: View {
             placeName: name,
             latitude: location.coordinate.latitude,
             longitude: location.coordinate.longitude,
-            modelContext: modelContext
+            modelContext: modelContext,
+            notificationService: passNotifications
         )
     }
 }
@@ -136,4 +194,5 @@ private struct PassRow: View {
     PassesView()
         .environment(ISSTrackerStore())
         .environment(LocationManager())
+        .environment(PassNotificationService())
 }

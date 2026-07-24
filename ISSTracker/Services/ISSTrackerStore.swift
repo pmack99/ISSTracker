@@ -52,7 +52,8 @@ final class ISSTrackerStore {
         placeName: String,
         latitude: Double,
         longitude: Double,
-        modelContext: ModelContext
+        modelContext: ModelContext,
+        notificationService: PassNotificationService
     ) async {
         isLoadingPasses = true
         passesError = nil
@@ -74,8 +75,10 @@ final class ISSTrackerStore {
                 modelContext.insert(record)
             }
             try modelContext.save()
+            await notificationService.schedulePasses(results, placeName: placeName)
         } catch ISSAPIError.noPasses {
             passesError = ISSAPIError.noPasses.localizedDescription
+            notificationService.cancelScheduledPasses()
         } catch {
             passesError = error.localizedDescription
         }
