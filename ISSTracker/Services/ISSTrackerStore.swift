@@ -18,6 +18,8 @@ final class ISSTrackerStore {
     var galleryError: String?
 
     var lastSearchLabel: String?
+    var lastSearchLatitude: Double?
+    var lastSearchLongitude: Double?
 
     private let api = ISSAPIService()
     private var refreshTask: Task<Void, Never>?
@@ -53,32 +55,43 @@ final class ISSTrackerStore {
         latitude: Double,
         longitude: Double,
         modelContext: ModelContext,
-        notificationService: PassNotificationService
+        notificationService: PassNotificationService,
+        saveToHistory: Bool = true
     ) async {
         isLoadingPasses = true
         passesError = nil
         passes = []
         lastSearchLabel = placeName
+        lastSearchLatitude = latitude
+        lastSearchLongitude = longitude
 
         do {
             let results = try await api.fetchVisualPasses(latitude: latitude, longitude: longitude)
             passes = results
-            for pass in results {
-                let record = PassSearchRecord(
-                    placeName: placeName,
-                    passStart: pass.startDate,
-                    durationSeconds: pass.duration,
-                    appearsFrom: pass.startAzCompass,
-                    departsTo: pass.endAzCompass,
-                    maxElevation: pass.maxEl
-                )
-                modelContext.insert(record)
+            if saveToHistory {
+                for pass in results {
+                    let record = PassSearchRecord(
+                        placeName: placeName,
+                        passStart: pass.startDate,
+                        durationSeconds: pass.duration,
+                        appearsFrom: pass.startAzCompass,
+                        departsTo: pass.endAzCompass,
+                        maxElevation: pass.maxEl
+                    )
+                    modelContext.insert(record)
+                }
+                try modelContext.save()
             }
-            try modelContext.save()
-            await notificationService.schedulePasses(results, placeName: placeName)
+            if saveToHistory {
+                await notificationService.schedulePasses(results, placeName: placeName)
+            }
+            WidgetPassSyncService.publish(passes: results, placeName: placeName)
+            PassLiveActivityManager.sync(with: WidgetPassSyncService.snapshot(from: results, placeName: placeName))
         } catch ISSAPIError.noPasses {
             passesError = ISSAPIError.noPasses.localizedDescription
             notificationService.cancelScheduledPasses()
+            WidgetPassSyncService.publish(snapshot: nil)
+            PassLiveActivityManager.endAll()
         } catch {
             passesError = error.localizedDescription
         }
@@ -101,5 +114,24 @@ final class ISSTrackerStore {
     func showRandomGalleryImage() {
         guard !gallery.isEmpty else { return }
         selectedGalleryIndex = Int.random(in: 0 ..< gallery.count)
+    }
+
+    func refreshWidgetForPrimarySavedLocation(
+        modelContext: ModelContext,
+        notificationService: PassNotificationService
+    ) async {
+        let descriptor = FetchDescriptor<SavedLocation>(sortBy: [SortDescriptor(\SavedLocation.createdAt, order: .reverse)])
+        guard let locations = try? modelContext.fetch(descriptor),
+              let primary = locations.first(where: \.isWidgetPrimary)
+        else { return }
+
+        await searchPasses(
+            placeName: primary.name,
+            latitude: primary.latitude,
+            longitude: primary.longitude,
+            modelContext: modelContext,
+            notificationService: notificationService,
+            saveToHistory: false
+        )
     }
 }

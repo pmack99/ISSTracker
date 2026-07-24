@@ -27,4 +27,8 @@ Native iPhone port of [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew
 
 ## Related repo
 
-Web version (cloned locally): `Brandnew_ISS_Tracker` in this same `Xcode Projects` folder.
+Web version: [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew_ISS_Tracker)
+
+## License
+
+Licensed under the [MIT License](LICENSE), matching the original ISS Tracker web project (`Copyright (c) 2013-2018 Blackrock Digital LLC`).

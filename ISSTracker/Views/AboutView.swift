@@ -39,6 +39,20 @@ struct AboutView: View {
                         }
                     }
                     .issGroupedCard()
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("License")
+                            .font(.headline)
+                        Text("This project uses the same MIT License as the original ISS Tracker web repository (Start Bootstrap / Blackrock Digital LLC, 2013–2018).")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        NavigationLink {
+                            LicenseView()
+                        } label: {
+                            Label("View MIT License", systemImage: "doc.text")
+                        }
+                    }
+                    .issGroupedCard()
                 }
                 .padding()
             }

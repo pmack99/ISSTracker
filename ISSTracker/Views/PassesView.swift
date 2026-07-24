@@ -85,6 +85,22 @@ struct PassesView: View {
                     Text("Visible ISS passes for the next 10 days (N2YO).")
                 }
 
+                SavedLocationsSection(
+                    lastSearchLabel: store.lastSearchLabel,
+                    lastLatitude: store.lastSearchLatitude,
+                    lastLongitude: store.lastSearchLongitude
+                ) { location in
+                    Task {
+                        await store.searchPasses(
+                            placeName: location.name,
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                            modelContext: modelContext,
+                            notificationService: passNotifications
+                        )
+                    }
+                }
+
                 if store.isLoadingPasses {
                     Section {
                         HStack {
@@ -114,8 +130,12 @@ struct PassesView: View {
                 if let label = store.lastSearchLabel, !store.passes.isEmpty {
                     Section {
                         ForEach(store.passes) { pass in
-                            PassRow(pass: pass)
-                                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
+                            NavigationLink {
+                                PassDetailView(pass: pass, placeName: label)
+                            } label: {
+                                PassRow(pass: pass)
+                            }
+                            .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
                         }
                     } header: {
                         Text("Passes for \(label)")
@@ -127,6 +147,12 @@ struct PassesView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Overhead")
             .toolbarTitleDisplayMode(.inlineLarge)
+            .task {
+                await store.refreshWidgetForPrimarySavedLocation(
+                    modelContext: modelContext,
+                    notificationService: passNotifications
+                )
+            }
         }
         .tint(ISSTheme.accent)
     }
@@ -241,4 +267,5 @@ private struct PassRow: View {
         .environment(ISSTrackerStore())
         .environment(LocationManager())
         .environment(PassNotificationService())
+        .environment(HeadingManager())
 }

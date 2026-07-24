@@ -1,8 +1,8 @@
 import Foundation
 
 struct ISSPass: Identifiable, Equatable {
-    let id = UUID()
     let startUTC: TimeInterval
+    let endUTC: TimeInterval
     let duration: Int
     let startAzCompass: String
     let endAzCompass: String
@@ -10,7 +10,10 @@ struct ISSPass: Identifiable, Equatable {
     let maxEl: Double
     let magnitude: Double?
 
+    var id: TimeInterval { startUTC }
+
     var startDate: Date { Date(timeIntervalSince1970: startUTC) }
+    var endDate: Date { Date(timeIntervalSince1970: endUTC) }
 
     var durationFormatted: String {
         let minutes = duration / 60
@@ -29,6 +32,7 @@ struct ISSPassResponse: Decodable {
 
     struct Pass: Decodable {
         let startUTC: TimeInterval
+        let endUTC: TimeInterval
         let duration: Int
         let startAzCompass: String
         let endAzCompass: String
@@ -44,6 +48,7 @@ struct ISSPassResponse: Decodable {
 extension ISSPass {
     init(from pass: ISSPassResponse.Pass) {
         startUTC = pass.startUTC
+        endUTC = pass.endUTC
         duration = pass.duration
         startAzCompass = pass.startAzCompass
         endAzCompass = pass.endAzCompass
