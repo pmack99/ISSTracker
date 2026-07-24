@@ -37,7 +37,6 @@ Static **marketing**, **support**, and **privacy** pages live in [`docs/`](docs/
    - Marketing: `https://pmack99.github.io/ISSTracker/`
    - Support: `https://pmack99.github.io/ISSTracker/support.html`
    - Privacy: `https://pmack99.github.io/ISSTracker/privacy.html`
-3. Add your real support email in `docs/support.html` before submitting to the App Store.
 
 ## Related repo
 
