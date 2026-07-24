@@ -1,4 +1,3 @@
-import CoreLocation
 import Foundation
 
 enum ISSAPIError: LocalizedError {
@@ -6,6 +5,7 @@ enum ISSAPIError: LocalizedError {
     case badResponse
     case noPasses
     case decodingFailed
+    case missingAPIKey
 
     var errorDescription: String? {
         switch self {
@@ -13,6 +13,7 @@ enum ISSAPIError: LocalizedError {
         case .badResponse: "The space station service returned an error."
         case .noPasses: "No visible passes in the next 10 days for this location."
         case .decodingFailed: "Could not read the response from the server."
+        case .missingAPIKey: "N2YO API key is missing. Copy Config/Secrets.xcconfig.example to Secrets.xcconfig and add your key."
         }
     }
 }
@@ -34,28 +35,8 @@ struct ISSAPIService {
         return try decoder.decode(ISSPosition.self, from: data)
     }
 
-    func fetchOrbitPath(
-        latitude: Double,
-        longitude: Double,
-        seconds: Int = OrbitPathBuilder.defaultForwardSeconds
-    ) async throws -> [CLLocationCoordinate2D] {
-        var components = URLComponents(
-            string: "https://api.n2yo.com/rest/v1/satellite/positions/\(APIConfiguration.issNoradID)/\(latitude)/\(longitude)/0/\(seconds)/"
-        )!
-        components.queryItems = [URLQueryItem(name: "apiKey", value: APIConfiguration.n2yoAPIKey)]
-        guard let url = components.url else { throw ISSAPIError.invalidURL }
-
-        let (data, response) = try await session.data(from: url)
-        guard let http = response as? HTTPURLResponse, (200 ..< 300).contains(http.statusCode) else {
-            throw ISSAPIError.badResponse
-        }
-
-        let decoded = try JSONDecoder().decode(N2YOOrbitResponse.self, from: data)
-        guard !decoded.positions.isEmpty else { throw ISSAPIError.badResponse }
-        return OrbitPathBuilder.coordinates(from: decoded)
-    }
-
     func fetchVisualPasses(latitude: Double, longitude: Double, days: Int = 10, maxPasses: Int = 300) async throws -> [ISSPass] {
+        guard APIConfiguration.isN2YOConfigured else { throw ISSAPIError.missingAPIKey }
         var components = URLComponents(string: "https://api.n2yo.com/rest/v1/satellite/visualpasses/\(APIConfiguration.issNoradID)/\(latitude)/\(longitude)/0/\(days)/\(maxPasses)/")!
         components.queryItems = [URLQueryItem(name: "apiKey", value: APIConfiguration.n2yoAPIKey)]
         guard let url = components.url else { throw ISSAPIError.invalidURL }

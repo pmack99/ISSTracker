@@ -21,3 +21,6 @@ Package.resolved
 # CocoaPods / Carthage (unused)
 Pods/
 Carthage/Build/
+
+# API keys (copy from Secrets.xcconfig.example)
+Config/Secrets.xcconfig

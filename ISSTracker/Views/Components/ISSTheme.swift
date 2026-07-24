@@ -2,6 +2,8 @@ import SwiftUI
 
 enum ISSTheme {
     static let accent = Color(red: 0.95, green: 0.55, blue: 0.22)
+    /// Live map ISS callout — distinct from MapKit city labels.
+    static let liveMapISS = Color(red: 0.92, green: 0.12, blue: 0.18)
     static let spaceDeep = Color(red: 0.05, green: 0.08, blue: 0.16)
 
     static var heroGradient: LinearGradient {

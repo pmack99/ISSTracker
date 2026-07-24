@@ -1,4 +1,3 @@
-import CoreLocation
 import Foundation
 import SwiftData
 
@@ -6,8 +5,7 @@ import SwiftData
 @Observable
 final class ISSTrackerStore {
     var position: ISSPosition?
-    var orbitPath: [CLLocationCoordinate2D] = []
-    var orbitPathEndBearing: Double = 0
+    private(set) var motionPreviousPosition: ISSPosition?
     var passes: [ISSPass] = []
     var gallery: [NASAImageItem] = []
     var selectedGalleryIndex = 0
@@ -26,7 +24,6 @@ final class ISSTrackerStore {
 
     private let api = ISSAPIService()
     private var refreshTask: Task<Void, Never>?
-    private var previousPosition: ISSPosition?
 
     func startLiveUpdates() {
         refreshTask?.cancel()
@@ -48,27 +45,12 @@ final class ISSTrackerStore {
         positionError = nil
         do {
             let latest = try await api.fetchCurrentPosition()
+            motionPreviousPosition = position
             position = latest
-            await refreshOrbitPath(for: latest)
         } catch {
             positionError = error.localizedDescription
         }
         isLoadingPosition = false
-    }
-
-    private func refreshOrbitPath(for latest: ISSPosition) async {
-        let forwardFromAPI = try? await api.fetchOrbitPath(
-            latitude: latest.latitude,
-            longitude: latest.longitude
-        )
-        let path = OrbitPathBuilder.forwardPath(
-            current: latest,
-            previous: previousPosition,
-            forwardFromAPI: forwardFromAPI
-        )
-        orbitPath = path
-        orbitPathEndBearing = OrbitPathBuilder.endBearing(for: path)
-        previousPosition = latest
     }
 
     func searchPasses(

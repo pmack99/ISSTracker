@@ -37,6 +37,9 @@
 /* Begin PBXFileReference section */
 		A10000012F00000100000001 /* ISSTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ISSTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000012F00000200000001 /* ISSTrackerWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ISSTrackerWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30000012F00000300000001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		A30000022F00000300000002 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
+		A30000042F00000300000004 /* ISSTracker-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ISSTracker-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +78,7 @@
 			children = (
 				A10000022F00000100000002 /* ISSTracker */,
 				A20000022F00000200000002 /* ISSTrackerWidget */,
+				A30000032F00000300000003 /* Config */,
 				A10000052F00000100000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -86,6 +90,16 @@
 				A20000012F00000200000001 /* ISSTrackerWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A30000032F00000300000003 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				A30000042F00000300000004 /* ISSTracker-Info.plist */,
+				A30000022F00000300000002 /* Secrets.xcconfig.example */,
+				A30000012F00000300000001 /* Secrets.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -220,6 +234,7 @@
 /* Begin XCBuildConfiguration section */
 		A100000C2F0000010000000C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A30000012F00000300000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -246,6 +261,7 @@
 		};
 		A100000D2F0000010000000D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A30000012F00000300000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -266,6 +282,7 @@
 		};
 		A100000E2F0000010000000E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A30000012F00000300000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -275,6 +292,7 @@
 				DEVELOPMENT_TEAM = HF9W68H6LN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ISSTracker-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "ISS Tracker";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "ISS Tracker uses your location to predict when the space station will pass overhead.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -300,6 +318,7 @@
 		};
 		A100000F2F0000010000000F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A30000012F00000300000001 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -309,6 +328,7 @@
 				DEVELOPMENT_TEAM = HF9W68H6LN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ISSTracker-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "ISS Tracker";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "ISS Tracker uses your location to predict when the space station will pass overhead.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;

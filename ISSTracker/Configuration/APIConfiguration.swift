@@ -1,7 +1,22 @@
 import Foundation
 
 enum APIConfiguration {
-    /// Same key as the original web app (N2YO). Prefer moving to Xcode build settings for production.
-    static let n2yoAPIKey = "LDUFJ6-J5J7F4-DCMYRA-3WB7"
     static let issNoradID = 25544
+
+    /// Injected via Config/Secrets.xcconfig → Info.plist (`N2YOAPIKey`).
+    static var n2yoAPIKey: String {
+        if let plistKey = Bundle.main.object(forInfoDictionaryKey: "N2YOAPIKey") as? String {
+            let trimmed = plistKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty, !trimmed.contains("$("), trimmed != "YOUR_N2YO_API_KEY_HERE" {
+                return trimmed
+            }
+        }
+        if let envKey = ProcessInfo.processInfo.environment["N2YO_API_KEY"] {
+            let trimmed = envKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty { return trimmed }
+        }
+        return ""
+    }
+
+    static var isN2YOConfigured: Bool { !n2yoAPIKey.isEmpty }
 }
