@@ -17,6 +17,9 @@ struct ISSTrackerApp: App {
                 .environment(passNotifications)
                 .environment(headingManager)
                 .task { await passNotifications.refreshAuthorizationStatus() }
+                .onAppear {
+                    store.setSceneActive(scenePhase == .active)
+                }
                 .onChange(of: scenePhase) { _, phase in
                     store.setSceneActive(phase == .active)
                     if phase == .active {

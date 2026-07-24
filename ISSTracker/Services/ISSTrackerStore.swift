@@ -31,33 +31,59 @@ final class ISSTrackerStore {
 
     private let api = ISSAPIService()
     private let cabinStream = ISSLiveCabinStreamService()
-    private var refreshTask: Task<Void, Never>?
-    private var liveUpdatesActive = false
+    private var positionRefreshTask: Task<Void, Never>?
+    private var cabinStreamActive = false
     private var isLiveTabVisible = false
-    private var isSceneActive = true
+    private var isSceneActive = false
 
     func setLiveTabVisible(_ visible: Bool) {
         isLiveTabVisible = visible
-        reconcileLiveSession()
+        reconcileCabinStream()
     }
 
     func setSceneActive(_ active: Bool) {
         isSceneActive = active
-        reconcileLiveSession()
+        reconcilePositionRefresh()
+        reconcileCabinStream()
     }
 
-    private func reconcileLiveSession() {
-        let shouldRun = isLiveTabVisible && isSceneActive
-        if shouldRun {
-            startLiveUpdatesIfNeeded()
+    private func reconcilePositionRefresh() {
+        if isSceneActive {
+            startPositionRefreshIfNeeded()
         } else {
-            stopLiveUpdatesIfNeeded()
+            stopPositionRefresh()
         }
     }
 
-    private func startLiveUpdatesIfNeeded() {
-        guard !liveUpdatesActive else { return }
-        liveUpdatesActive = true
+    private func startPositionRefreshIfNeeded() {
+        guard positionRefreshTask == nil else { return }
+        positionRefreshTask = Task {
+            await refreshPosition()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(30))
+                guard !Task.isCancelled else { return }
+                await refreshPosition()
+            }
+        }
+    }
+
+    private func stopPositionRefresh() {
+        positionRefreshTask?.cancel()
+        positionRefreshTask = nil
+    }
+
+    private func reconcileCabinStream() {
+        let shouldRun = isLiveTabVisible && isSceneActive
+        if shouldRun {
+            startCabinStreamIfNeeded()
+        } else {
+            stopCabinStreamIfNeeded()
+        }
+    }
+
+    private func startCabinStreamIfNeeded() {
+        guard !cabinStreamActive else { return }
+        cabinStreamActive = true
         cabinStream.onTelemetryChange = { [weak self] telemetry in
             self?.cabinTelemetry = telemetry
         }
@@ -65,29 +91,20 @@ final class ISSTrackerStore {
             self?.cabinStatusMessage = message
         }
         cabinStream.start()
-        refreshTask?.cancel()
-        refreshTask = Task {
-            while !Task.isCancelled {
-                await refreshPosition()
-                try? await Task.sleep(for: .seconds(30))
-            }
-        }
     }
 
-    private func stopLiveUpdatesIfNeeded() {
-        guard liveUpdatesActive else { return }
-        liveUpdatesActive = false
-        refreshTask?.cancel()
-        refreshTask = nil
+    private func stopCabinStreamIfNeeded() {
+        guard cabinStreamActive else { return }
+        cabinStreamActive = false
         cabinStream.stop()
     }
 
     func startLiveUpdates() {
-        startLiveUpdatesIfNeeded()
+        startCabinStreamIfNeeded()
     }
 
     func stopLiveUpdates() {
-        stopLiveUpdatesIfNeeded()
+        stopCabinStreamIfNeeded()
     }
 
     func refreshPosition() async {
@@ -153,7 +170,7 @@ final class ISSTrackerStore {
         } catch ISSAPIError.noPasses {
             passesError = ISSAPIError.noPasses.localizedDescription
             notificationService.cancelScheduledPasses()
-            WidgetPassSyncService.clearWidgetAndLiveActivity()
+            WidgetPassSyncService.clearPassTrackingAndLiveActivity()
         } catch {
             passesError = StoreErrorMessage.text(for: error)
         }

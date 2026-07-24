@@ -5,7 +5,7 @@ struct PassDetailView: View {
     let placeName: String
 
     @Environment(HeadingManager.self) private var headingManager
-    @State private var trackLiveActivity = true
+    @State private var trackLiveActivity = false
 
     private var targetDegrees: Double? {
         CompassAzimuth.degrees(for: pass.startAzCompass)
@@ -74,7 +74,10 @@ struct PassDetailView: View {
         }
         .navigationTitle("Pass detail")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { headingManager.start() }
+        .onAppear {
+            headingManager.start()
+            trackLiveActivity = WidgetPassSyncService.isTrackingPass(pass)
+        }
         .onDisappear { headingManager.stop() }
         .tint(ISSTheme.accent)
     }

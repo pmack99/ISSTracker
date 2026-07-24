@@ -20,7 +20,15 @@ struct LiveMapView: View {
                             current: position,
                             previous: store.motionPreviousPosition
                         )
-                        mapContent(for: position, displayCoordinate: displayCoordinate)
+                        let displayPosition = ISSMotionInterpolator.displayPosition(
+                            at: timeline.date,
+                            current: position,
+                            previous: store.motionPreviousPosition
+                        )
+                        mapContent(
+                            displayCoordinate: displayCoordinate,
+                            displayPosition: displayPosition
+                        )
                     }
                 } else if store.isLoadingPosition {
                     ISSLoadingView(message: "Fetching ISS position…")
@@ -102,8 +110,8 @@ struct LiveMapView: View {
 
     @ViewBuilder
     private func mapContent(
-        for position: ISSPosition,
-        displayCoordinate: CLLocationCoordinate2D
+        displayCoordinate: CLLocationCoordinate2D,
+        displayPosition: ISSPosition
     ) -> some View {
         Map(position: $cameraPosition) {
             Annotation("", coordinate: displayCoordinate) {
@@ -134,7 +142,7 @@ struct LiveMapView: View {
         .overlay(alignment: .bottom) {
             LiveMapBottomDock(
                 expandedPanel: $expandedBottomPanel,
-                position: store.position,
+                position: displayPosition,
                 followISS: followISS,
                 crew: store.issCrew,
                 isLoadingCrew: store.isLoadingCrew,

@@ -1,5 +1,4 @@
 import Foundation
-import WidgetKit
 
 @MainActor
 enum WidgetPassSyncService {
@@ -26,7 +25,6 @@ enum WidgetPassSyncService {
 
     static func publish(snapshot: SharedPassSnapshot?) {
         SharedPassStorage.save(snapshot)
-        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// User chose a specific pass on the detail screen.
@@ -38,16 +36,21 @@ enum WidgetPassSyncService {
     }
 
     static func clearTrackedPass(matching pass: ISSPass) {
-        guard SharedPassStorage.loadTrackedPassStartUTC() == pass.startUTC else { return }
+        guard widgetShowsPass(pass) else { return }
         SharedPassStorage.saveTrackedPassStartUTC(nil)
         publish(snapshot: nil)
         PassLiveActivityManager.endAll()
     }
 
-    static func clearWidgetAndLiveActivity() {
+    static func clearPassTrackingAndLiveActivity() {
         SharedPassStorage.saveTrackedPassStartUTC(nil)
         publish(snapshot: nil)
         PassLiveActivityManager.endAll()
+    }
+
+    @available(*, deprecated, renamed: "clearPassTrackingAndLiveActivity")
+    static func clearWidgetAndLiveActivity() {
+        clearPassTrackingAndLiveActivity()
     }
 
     static func makeSnapshot(pass: ISSPass, placeName: String) -> SharedPassSnapshot {
@@ -59,5 +62,27 @@ enum WidgetPassSyncService {
             maxEl: pass.maxEl,
             updatedAt: Date().timeIntervalSince1970
         )
+    }
+
+    /// Whether the Live Activity currently reflects this pass.
+    static func isTrackingPass(_ pass: ISSPass) -> Bool {
+        guard let snapshot = SharedPassStorage.load() else { return false }
+        return passStartMatches(snapshot.startUTC, pass.startUTC)
+    }
+
+    nonisolated static func passStartMatches(_ lhs: TimeInterval, _ rhs: TimeInterval) -> Bool {
+        abs(lhs - rhs) < 1.0
+    }
+
+    private static func widgetShowsPass(_ pass: ISSPass) -> Bool {
+        if let tracked = SharedPassStorage.loadTrackedPassStartUTC(),
+           passStartMatches(tracked, pass.startUTC) {
+            return true
+        }
+        if let snapshot = SharedPassStorage.load(),
+           passStartMatches(snapshot.startUTC, pass.startUTC) {
+            return true
+        }
+        return false
     }
 }

@@ -13,7 +13,7 @@ struct SavedLocationsSection: View {
     var body: some View {
         Section {
             if savedLocations.isEmpty {
-                Text("Save a place to power the Home Screen widget countdown.")
+                Text("Save places for quick pass lookups. Star one as your default for reminders and Live Activity.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -35,7 +35,7 @@ struct SavedLocationsSection: View {
                         if location.isWidgetPrimary {
                             Image(systemName: "star.fill")
                                 .foregroundStyle(ISSTheme.accent)
-                                .accessibilityLabel("Widget location")
+                                .accessibilityLabel("Default pass location")
                         }
                     }
                 }
@@ -50,7 +50,7 @@ struct SavedLocationsSection: View {
                     Button {
                         setWidgetPrimary(location)
                     } label: {
-                        Label("Widget", systemImage: "star")
+                        Label("Default", systemImage: "star")
                     }
                     .tint(ISSTheme.accent)
                 }
@@ -66,7 +66,7 @@ struct SavedLocationsSection: View {
         } header: {
             Text("Saved places")
         } footer: {
-            Text("Star a saved place to use it for the Home Screen widget.")
+            Text("Star a saved place for pass reminders and Live Activity when you search from the app.")
         }
     }
 

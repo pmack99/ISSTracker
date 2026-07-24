@@ -37,7 +37,7 @@ struct TonightPassHeroCard: View {
                         .buttonStyle(.bordered)
                         .tint(ISSTheme.accent)
                 } else {
-                    Text("Star a saved place to see tonight’s pass here and power the Home Screen widget.")
+                    Text("Star a saved place to see tonight’s pass here and use it as your default for reminders.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
