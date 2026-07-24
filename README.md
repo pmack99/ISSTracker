@@ -38,6 +38,8 @@ Static **marketing**, **support**, and **privacy** pages live in [`docs/`](docs/
    - Support: `https://pmack99.github.io/ISSTracker/support.html`
    - Privacy: `https://pmack99.github.io/ISSTracker/privacy.html`
 
+**App Store submission:** [publication guide](docs/AppStore-Publication-Guide.md) · [metadata copy-paste](docs/AppStore-Metadata.md)
+
 ## Related repo
 
 Web version: [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew_ISS_Tracker)
