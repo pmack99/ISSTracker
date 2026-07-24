@@ -11,22 +11,37 @@ struct LiveMapView: View {
                 if let position = store.position {
                     mapContent(for: position)
                 } else if store.isLoadingPosition {
-                    ProgressView("Fetching ISS position…")
+                    ISSLoadingView(message: "Fetching ISS position…")
                 } else {
-                    ContentUnavailableView(
-                        "No position yet",
+                    ISSErrorStateView(
+                        title: "Can’t reach the station",
+                        message: store.positionError ?? "Check your connection and try again.",
                         systemImage: "antenna.radiowaves.left.and.right.slash",
-                        description: Text(store.positionError ?? "Pull to refresh.")
+                        retry: { await store.refreshPosition() }
                     )
                 }
             }
             .navigationTitle("ISS Live")
             .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if store.isLoadingPosition, store.position != nil {
+                        ProgressView()
+                    } else {
+                        Button {
+                            Task { await store.refreshPosition() }
+                        } label: {
+                            Label("Refresh", systemImage: "arrow.clockwise")
+                        }
+                    }
+                }
+            }
             .refreshable { await store.refreshPosition() }
             .safeAreaInset(edge: .bottom) {
                 if let position = store.position {
                     ISSMetricsCard(position: position)
-                        .padding()
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
                 }
             }
             .onAppear {
@@ -40,6 +55,7 @@ struct LiveMapView: View {
                 if let newValue { center(on: newValue) }
             }
         }
+        .tint(ISSTheme.accent)
     }
 
     @ViewBuilder
@@ -49,8 +65,8 @@ struct LiveMapView: View {
                 Image("ISSMarker")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 44, height: 44)
-                    .shadow(radius: 4)
+                    .frame(width: 48, height: 48)
+                    .shadow(color: ISSTheme.accent.opacity(0.45), radius: 8)
             }
         }
         .mapStyle(.hybrid(elevation: .realistic))
@@ -70,37 +86,45 @@ private struct ISSMetricsCard: View {
     let position: ISSPosition
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Updated \(position.updatedAt.formatted(date: .abbreviated, time: .standard))")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Live telemetry")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                ISSStatusBadge(text: position.visibilityLabel, tint: visibilityTint)
+            }
+
+            Text("Updated \(position.updatedAt.formatted(date: .abbreviated, time: .standard)) · refreshes every 30s")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 6) {
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
                 GridRow {
-                    metric("Latitude", value: String(format: "%.4f°", position.latitude))
-                    metric("Longitude", value: String(format: "%.4f°", position.longitude))
+                    metric("Latitude", value: String(format: "%.4f°", position.latitude), icon: "lines.measurement.horizontal")
+                    metric("Longitude", value: String(format: "%.4f°", position.longitude), icon: "lines.measurement.vertical")
                 }
                 GridRow {
-                    metric("Altitude", value: String(format: "%.0f km", position.altitude))
-                    metric("Speed", value: String(format: "%.0f km/h", position.velocity))
-                }
-                GridRow {
-                    metric("Visibility", value: position.visibilityLabel)
+                    metric("Altitude", value: String(format: "%.0f km", position.altitude), icon: "arrow.up.and.down")
+                    metric("Speed", value: String(format: "%.0f km/h", position.velocity), icon: "speedometer")
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .issGroupedCard()
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
     }
 
-    private func metric(_ title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
+    private var visibilityTint: Color {
+        position.visibility.lowercased() == "daylight" ? .yellow : .cyan
+    }
+
+    private func metric(_ title: String, value: String, icon: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label(title, systemImage: icon)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
         }
     }
 }

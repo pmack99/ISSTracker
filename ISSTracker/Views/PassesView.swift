@@ -35,7 +35,7 @@ struct PassesView: View {
                     }
 
                     if passNotifications.authorizationStatus == .denied {
-                        Text("Notifications are off in Settings. Enable them for ISS Tracker to get pass reminders.")
+                        Label("Notifications are off in Settings.", systemImage: "bell.slash")
                             .font(.caption)
                             .foregroundStyle(.orange)
                     } else if let summary = passNotifications.lastScheduleSummary {
@@ -46,27 +46,32 @@ struct PassesView: View {
                 } header: {
                     Text("Alerts")
                 } footer: {
-                    Text("After you search for passes, reminders are scheduled for upcoming visible passes at this location.")
+                    Text("Reminders are scheduled after each successful pass search.")
                 }
 
                 Section {
-                    HStack {
-                        TextField("City or zip code", text: $searchText)
-                            .textInputAutocapitalization(.words)
-                            .autocorrectionDisabled()
+                    TextField("City or zip code", text: $searchText)
+                        .textInputAutocapitalization(.words)
+                        .autocorrectionDisabled()
 
-                        Button("Search") {
-                            Task { await searchByText() }
-                        }
-                        .disabled(searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.isLoadingPasses)
+                    Button {
+                        Task { await searchByText() }
+                    } label: {
+                        Label("Search passes", systemImage: "magnifyingglass")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(ISSTheme.accent)
+                    .disabled(searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.isLoadingPasses)
 
                     Button {
                         locationManager.requestCurrentLocation()
                         Task { await searchFromDeviceLocation() }
                     } label: {
                         Label("Use my location", systemImage: "location.fill")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.bordered)
                     .disabled(store.isLoadingPasses)
 
                     if let error = locationManager.errorMessage {
@@ -77,7 +82,7 @@ struct PassesView: View {
                 } header: {
                     Text("Where to look")
                 } footer: {
-                    Text("Shows visible ISS passes for the next 10 days (N2YO).")
+                    Text("Visible ISS passes for the next 10 days (N2YO).")
                 }
 
                 if store.isLoadingPasses {
@@ -92,22 +97,38 @@ struct PassesView: View {
 
                 if let error = store.passesError {
                     Section {
-                        Text(error)
-                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label(error, systemImage: "exclamationmark.triangle")
+                                .foregroundStyle(.secondary)
+                                .font(.subheadline)
+                            if !searchText.isEmpty {
+                                Button("Search again") {
+                                    Task { await searchByText() }
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
                     }
                 }
 
                 if let label = store.lastSearchLabel, !store.passes.isEmpty {
-                    Section("Passes for \(label)") {
+                    Section {
                         ForEach(store.passes) { pass in
                             PassRow(pass: pass)
+                                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
                         }
+                    } header: {
+                        Text("Passes for \(label)")
+                    } footer: {
+                        Text("\(store.passes.count) upcoming visible pass\(store.passes.count == 1 ? "" : "es")")
                     }
                 }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle("Overhead")
             .toolbarTitleDisplayMode(.inlineLarge)
         }
+        .tint(ISSTheme.accent)
     }
 
     private func handleNotificationsToggled(_ enabled: Bool) async {
@@ -173,20 +194,45 @@ private struct PassRow: View {
     let pass: ISSPass
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(pass.startDate.formatted(date: .complete, time: .shortened))
-                .font(.headline)
-
-            LabeledContent("Duration", value: pass.durationFormatted)
-            LabeledContent("Appears", value: pass.startAzCompass)
-            LabeledContent("Max elevation", value: String(format: "%.1f°", pass.maxEl))
-            LabeledContent("Departs", value: pass.endAzCompass)
-
-            if let mag = pass.magnitude {
-                LabeledContent("Brightness", value: String(format: "%.1f mag", mag))
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(pass.startDate.formatted(date: .complete, time: .shortened))
+                    .font(.headline)
+                Spacer()
+                Text(pass.startDate, format: .relative(presentation: .named))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(ISSTheme.accent)
             }
+
+            HStack(spacing: 8) {
+                miniStat("Duration", value: pass.durationFormatted, icon: "timer")
+                miniStat("Max", value: String(format: "%.0f°", pass.maxEl), icon: "arrow.up.right")
+                if let mag = pass.magnitude {
+                    miniStat("Mag", value: String(format: "%.1f", mag), icon: "sparkles")
+                }
+            }
+
+            HStack(spacing: 16) {
+                Label(pass.startAzCompass, systemImage: "arrow.down.right.circle")
+                Label(pass.endAzCompass, systemImage: "arrow.up.right.circle")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(12)
+        .background(Color(.tertiarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func miniStat(_ title: String, value: String, icon: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Label(title, systemImage: icon)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.caption.weight(.semibold))
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

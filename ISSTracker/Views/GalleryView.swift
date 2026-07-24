@@ -6,40 +6,56 @@ struct GalleryView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if store.isLoadingGallery {
-                    ProgressView("Loading NASA gallery…")
+                if store.isLoadingGallery, store.gallery.isEmpty {
+                    ISSLoadingView(message: "Loading NASA gallery…")
                 } else if let item = currentItem {
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 18) {
                             AsyncImage(url: item.imageURL) { phase in
                                 switch phase {
                                 case .success(let image):
                                     image
                                         .resizable()
                                         .scaledToFit()
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                        .shadow(color: .black.opacity(0.2), radius: 16, y: 8)
                                 case .failure:
-                                    ContentUnavailableView("Image unavailable", systemImage: "photo")
+                                    ISSErrorStateView(
+                                        title: "Image unavailable",
+                                        message: "This NASA asset could not be loaded.",
+                                        systemImage: "photo",
+                                        retry: { await reloadGallery() }
+                                    )
+                                    .frame(minHeight: 220)
                                 default:
                                     ProgressView()
-                                        .frame(maxWidth: .infinity, minHeight: 200)
+                                        .frame(maxWidth: .infinity, minHeight: 240)
                                 }
                             }
 
                             Text(item.title)
                                 .font(.title3.weight(.semibold))
 
+                            if !store.gallery.isEmpty {
+                                Text("Image \(store.selectedGalleryIndex + 1) of \(store.gallery.count)")
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(.secondary)
+                            }
+
                             Text(item.description)
                                 .font(.body)
                                 .foregroundStyle(.secondary)
+                                .lineSpacing(4)
                         }
                         .padding()
                     }
                 } else {
-                    ContentUnavailableView(
-                        "No photos",
-                        systemImage: "photo.on.rectangle",
-                        description: Text(store.galleryError ?? "Pull to load the NASA ISS archive.")
+                    ISSErrorStateView(
+                        title: "No photos yet",
+                        message: store.galleryError ?? "Pull down to load the NASA ISS archive.",
+                        systemImage: "photo.on.rectangle.angled",
+                        retryTitle: "Load Gallery",
+                        retry: { await reloadGallery() }
                     )
                 }
             }
@@ -58,6 +74,7 @@ struct GalleryView: View {
             .refreshable { await reloadGallery() }
             .task { await store.loadGallery() }
         }
+        .tint(ISSTheme.accent)
     }
 
     private var currentItem: NASAImageItem? {

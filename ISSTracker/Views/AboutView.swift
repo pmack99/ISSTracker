@@ -1,34 +1,66 @@
 import SwiftUI
 
 struct AboutView: View {
+    private let webRepoURL = URL(string: "https://github.com/pmack99/Brandnew_ISS_Tracker")!
+    private let iosRepoURL = URL(string: "https://github.com/pmack99/ISSTracker")!
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("International Space Station Tracker")
-                        .font(.title2.weight(.bold))
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("International Space Station Tracker", systemImage: "globe.americas.fill")
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(ISSTheme.accent)
 
-                    Text("Originally built by Preston Mack, Christine Deer, Sarah Sefcik, and Jennifer Gibson at UCF Coding Bootcamp. This iPhone version carries forward the same idea with native maps, location, and on-device history.")
+                        Text("Originally built by Preston Mack, Christine Deer, Sarah Sefcik, and Jennifer Gibson at UCF Coding Bootcamp. This iPhone app continues the project with native maps, location, reminders, and on-device history.")
+                            .foregroundStyle(.secondary)
+                    }
+                    .issGroupedCard()
 
-                    Group {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text("Data sources")
                             .font(.headline)
-                        Label("Live position — Where The ISS At", systemImage: "antenna.radiowaves.left.and.right")
-                        Label("Visible passes — N2YO", systemImage: "eye")
-                        Label("Geocoding — Apple MapKit", systemImage: "mappin.and.ellipse")
-                        Label("Photos — NASA Image and Video Library", systemImage: "photo")
+                        sourceRow("Live position", detail: "Where The ISS At", icon: "antenna.radiowaves.left.and.right")
+                        sourceRow("Visible passes", detail: "N2YO", icon: "eye")
+                        sourceRow("Geocoding", detail: "Apple MapKit", icon: "mappin.and.ellipse")
+                        sourceRow("Photos", detail: "NASA Image and Video Library", icon: "photo")
                     }
+                    .issGroupedCard()
 
-                    Group {
-                        Text("Improvements in this app")
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Project links")
                             .font(.headline)
-                        Text("• Real altitude, speed, and visibility on the live map\n• “Use my location” for pass predictions\n• Local pass reminders before overhead flyovers\n• Lists every upcoming pass, not just one\n• Search history saved on your device (no shared Firebase log)\n• Correct N2YO API URLs (the web app’s host format was outdated)")
+                        Link(destination: iosRepoURL) {
+                            Label("iOS app on GitHub", systemImage: "iphone")
+                        }
+                        Link(destination: webRepoURL) {
+                            Label("Original web app on GitHub", systemImage: "safari")
+                        }
                     }
+                    .issGroupedCard()
                 }
                 .padding()
             }
+            .issScreenBackground()
             .navigationTitle("About")
             .toolbarTitleDisplayMode(.inlineLarge)
+        }
+        .tint(ISSTheme.accent)
+    }
+
+    private func sourceRow(_ title: String, detail: String, icon: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .foregroundStyle(ISSTheme.accent)
+                .frame(width: 22)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }

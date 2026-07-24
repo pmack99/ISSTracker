@@ -9,24 +9,41 @@ struct HistoryView: View {
         NavigationStack {
             Group {
                 if records.isEmpty {
-                    ContentUnavailableView(
-                        "No searches yet",
-                        systemImage: "clock",
-                        description: Text("Pass lookups you run will appear here on this device.")
-                    )
+                    ContentUnavailableView {
+                        Label("No searches yet", systemImage: "clock.arrow.circlepath")
+                    } description: {
+                        Text("Pass lookups you run on the Overhead tab will appear here on this device.")
+                    }
+                    .issScreenBackground()
                 } else {
-                    List(records) { record in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(record.placeName)
-                                .font(.headline)
-                            Text(record.passStart.formatted(date: .abbreviated, time: .shortened))
-                                .font(.subheadline)
-                            Text("Departs \(record.departsTo) · \(record.durationSeconds)s · max \(String(format: "%.0f°", record.maxElevation))")
+                    List {
+                        ForEach(records) { record in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Label(record.placeName, systemImage: "mappin.and.ellipse")
+                                        .font(.headline)
+                                    Spacer()
+                                    Text(record.passStart, format: .relative(presentation: .named))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Text(record.passStart.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+
+                                HStack(spacing: 12) {
+                                    Label(record.appearsFrom, systemImage: "location.north.line")
+                                    Label("\(Int(record.maxElevation))°", systemImage: "arrow.up.right")
+                                    Label(formatDuration(record.durationSeconds), systemImage: "timer")
+                                }
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 6)
                         }
-                        .padding(.vertical, 2)
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("History")
@@ -41,6 +58,14 @@ struct HistoryView: View {
                 }
             }
         }
+        .tint(ISSTheme.accent)
+    }
+
+    private func formatDuration(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainder = seconds % 60
+        if minutes > 0 { return "\(minutes)m \(remainder)s" }
+        return "\(remainder)s"
     }
 }
 

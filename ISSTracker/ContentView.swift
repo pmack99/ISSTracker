@@ -28,6 +28,7 @@ struct ContentView: View {
                     Label("About", systemImage: "info.circle")
                 }
         }
+        .tint(ISSTheme.accent)
     }
 }
 
@@ -35,4 +36,5 @@ struct ContentView: View {
     ContentView()
         .environment(ISSTrackerStore())
         .environment(LocationManager())
+        .environment(PassNotificationService())
 }
