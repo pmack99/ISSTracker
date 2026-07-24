@@ -10,6 +10,7 @@ final class PassSearchRecord {
     var departsTo: String
     var maxElevation: Double
     var searchedAt: Date
+    var passCount: Int
 
     init(
         placeName: String,
@@ -18,6 +19,7 @@ final class PassSearchRecord {
         appearsFrom: String,
         departsTo: String,
         maxElevation: Double,
+        passCount: Int = 1,
         searchedAt: Date = .now
     ) {
         self.placeName = placeName
@@ -26,6 +28,7 @@ final class PassSearchRecord {
         self.appearsFrom = appearsFrom
         self.departsTo = departsTo
         self.maxElevation = maxElevation
+        self.passCount = passCount
         self.searchedAt = searchedAt
     }
 }

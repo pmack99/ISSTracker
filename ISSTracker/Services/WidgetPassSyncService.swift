@@ -1,6 +1,7 @@
 import Foundation
 import WidgetKit
 
+@MainActor
 enum WidgetPassSyncService {
     static func snapshot(from passes: [ISSPass], placeName: String) -> SharedPassSnapshot? {
         let now = Date()
@@ -15,10 +16,12 @@ enum WidgetPassSyncService {
         return nil
     }
 
-    static func publish(passes: [ISSPass], placeName: String) {
+    /// Canonical update after a pass search (clears manual pass tracking).
+    static func publishFromSearch(passes: [ISSPass], placeName: String) {
+        SharedPassStorage.saveTrackedPassStartUTC(nil)
         let snapshot = snapshot(from: passes, placeName: placeName)
-        SharedPassStorage.save(snapshot)
-        WidgetCenter.shared.reloadAllTimelines()
+        publish(snapshot: snapshot)
+        PassLiveActivityManager.sync(with: snapshot)
     }
 
     static func publish(snapshot: SharedPassSnapshot?) {
@@ -26,7 +29,28 @@ enum WidgetPassSyncService {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    private static func makeSnapshot(pass: ISSPass, placeName: String) -> SharedPassSnapshot {
+    /// User chose a specific pass on the detail screen.
+    static func setTrackedPass(_ pass: ISSPass, placeName: String) {
+        let snapshot = makeSnapshot(pass: pass, placeName: placeName)
+        SharedPassStorage.saveTrackedPassStartUTC(pass.startUTC)
+        publish(snapshot: snapshot)
+        PassLiveActivityManager.sync(with: snapshot)
+    }
+
+    static func clearTrackedPass(matching pass: ISSPass) {
+        guard SharedPassStorage.loadTrackedPassStartUTC() == pass.startUTC else { return }
+        SharedPassStorage.saveTrackedPassStartUTC(nil)
+        publish(snapshot: nil)
+        PassLiveActivityManager.endAll()
+    }
+
+    static func clearWidgetAndLiveActivity() {
+        SharedPassStorage.saveTrackedPassStartUTC(nil)
+        publish(snapshot: nil)
+        PassLiveActivityManager.endAll()
+    }
+
+    static func makeSnapshot(pass: ISSPass, placeName: String) -> SharedPassSnapshot {
         SharedPassSnapshot(
             placeName: placeName,
             startUTC: pass.startUTC,

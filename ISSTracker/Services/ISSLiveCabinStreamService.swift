@@ -28,6 +28,11 @@ final class ISSLiveCabinStreamService {
                 self?.apply(itemID: itemID, value: value)
             }
         }
+        delegateBridge.onSubscriptionError = { [weak self] message in
+            Task { @MainActor in
+                self?.onStatusChange?(message)
+            }
+        }
 
         subscription.addDelegate(delegateBridge)
         client.addDelegate(ConnectionDelegateBridge { [weak self] message in
@@ -64,6 +69,7 @@ final class ISSLiveCabinStreamService {
 
 private final class CabinSubscriptionDelegate: SubscriptionDelegate {
     var onItemValue: ((String, String?) -> Void)?
+    var onSubscriptionError: ((String) -> Void)?
 
     func subscription(_ subscription: Subscription, didUpdateItem itemUpdate: ItemUpdate) {
         guard let itemName = itemUpdate.itemName else { return }
@@ -79,7 +85,10 @@ private final class CabinSubscriptionDelegate: SubscriptionDelegate {
     func subscriptionDidRemoveDelegate(_ subscription: Subscription) {}
     func subscriptionDidAddDelegate(_ subscription: Subscription) {}
     func subscriptionDidSubscribe(_ subscription: Subscription) {}
-    func subscription(_ subscription: Subscription, didFailWithErrorCode code: Int, message: String?) {}
+    func subscription(_ subscription: Subscription, didFailWithErrorCode code: Int, message: String?) {
+        let text = message?.isEmpty == false ? message! : "Cabin subscription error (\(code))"
+        onSubscriptionError?(text)
+    }
     func subscriptionDidUnsubscribe(_ subscription: Subscription) {}
     func subscription(_ subscription: Subscription, didReceiveRealFrequency frequency: RealMaxFrequency?) {}
 }

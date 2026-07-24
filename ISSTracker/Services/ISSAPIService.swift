@@ -93,6 +93,7 @@ struct ISSAPIService {
     }
 
     func fetchPeopleInSpace() async throws -> PeopleInSpaceResponse {
+        // Open Notify serves this endpoint over HTTP only; ATS exception is in Info.plist.
         guard let url = URL(string: "http://api.open-notify.org/astros.json") else {
             throw ISSAPIError.invalidURL
         }

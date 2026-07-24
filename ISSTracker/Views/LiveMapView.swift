@@ -75,7 +75,7 @@ struct LiveMapView: View {
                 await store.refreshCrew()
             }
             .onAppear {
-                store.startLiveUpdates()
+                store.setLiveTabVisible(true)
                 Task { await store.refreshCrew() }
                 if followISS, let position = store.position {
                     let coordinate = ISSMotionInterpolator.coordinate(
@@ -86,7 +86,7 @@ struct LiveMapView: View {
                     recenter(on: coordinate)
                 }
             }
-            .onDisappear { store.stopLiveUpdates() }
+            .onDisappear { store.setLiveTabVisible(false) }
             .onChange(of: store.position) { _, newValue in
                 guard followISS, let newValue else { return }
                 let coordinate = ISSMotionInterpolator.coordinate(

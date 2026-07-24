@@ -32,9 +32,32 @@ final class ISSTrackerStore {
     private let api = ISSAPIService()
     private let cabinStream = ISSLiveCabinStreamService()
     private var refreshTask: Task<Void, Never>?
+    private var liveUpdatesActive = false
+    private var isLiveTabVisible = false
+    private var isSceneActive = true
 
-    func startLiveUpdates() {
-        refreshTask?.cancel()
+    func setLiveTabVisible(_ visible: Bool) {
+        isLiveTabVisible = visible
+        reconcileLiveSession()
+    }
+
+    func setSceneActive(_ active: Bool) {
+        isSceneActive = active
+        reconcileLiveSession()
+    }
+
+    private func reconcileLiveSession() {
+        let shouldRun = isLiveTabVisible && isSceneActive
+        if shouldRun {
+            startLiveUpdatesIfNeeded()
+        } else {
+            stopLiveUpdatesIfNeeded()
+        }
+    }
+
+    private func startLiveUpdatesIfNeeded() {
+        guard !liveUpdatesActive else { return }
+        liveUpdatesActive = true
         cabinStream.onTelemetryChange = { [weak self] telemetry in
             self?.cabinTelemetry = telemetry
         }
@@ -42,6 +65,7 @@ final class ISSTrackerStore {
             self?.cabinStatusMessage = message
         }
         cabinStream.start()
+        refreshTask?.cancel()
         refreshTask = Task {
             while !Task.isCancelled {
                 await refreshPosition()
@@ -50,10 +74,20 @@ final class ISSTrackerStore {
         }
     }
 
-    func stopLiveUpdates() {
+    private func stopLiveUpdatesIfNeeded() {
+        guard liveUpdatesActive else { return }
+        liveUpdatesActive = false
         refreshTask?.cancel()
         refreshTask = nil
         cabinStream.stop()
+    }
+
+    func startLiveUpdates() {
+        startLiveUpdatesIfNeeded()
+    }
+
+    func stopLiveUpdates() {
+        stopLiveUpdatesIfNeeded()
     }
 
     func refreshPosition() async {
@@ -64,7 +98,7 @@ final class ISSTrackerStore {
             motionPreviousPosition = position
             position = latest
         } catch {
-            positionError = error.localizedDescription
+            positionError = StoreErrorMessage.text(for: error)
         }
         isLoadingPosition = false
     }
@@ -76,7 +110,7 @@ final class ISSTrackerStore {
             let response = try await api.fetchPeopleInSpace()
             issCrew = response.issCrew
         } catch {
-            crewError = error.localizedDescription
+            crewError = StoreErrorMessage.text(for: error)
         }
         isLoadingCrew = false
     }
@@ -100,33 +134,39 @@ final class ISSTrackerStore {
             let results = try await api.fetchVisualPasses(latitude: latitude, longitude: longitude)
             passes = results
             if saveToHistory {
-                for pass in results {
+                if let representative = Self.representativePass(from: results) {
                     let record = PassSearchRecord(
                         placeName: placeName,
-                        passStart: pass.startDate,
-                        durationSeconds: pass.duration,
-                        appearsFrom: pass.startAzCompass,
-                        departsTo: pass.endAzCompass,
-                        maxElevation: pass.maxEl
+                        passStart: representative.startDate,
+                        durationSeconds: representative.duration,
+                        appearsFrom: representative.startAzCompass,
+                        departsTo: representative.endAzCompass,
+                        maxElevation: representative.maxEl,
+                        passCount: results.count
                     )
                     modelContext.insert(record)
+                    try modelContext.save()
                 }
-                try modelContext.save()
-            }
-            if saveToHistory {
                 await notificationService.schedulePasses(results, placeName: placeName)
             }
-            WidgetPassSyncService.publish(passes: results, placeName: placeName)
-            PassLiveActivityManager.sync(with: WidgetPassSyncService.snapshot(from: results, placeName: placeName))
+            WidgetPassSyncService.publishFromSearch(passes: results, placeName: placeName)
         } catch ISSAPIError.noPasses {
             passesError = ISSAPIError.noPasses.localizedDescription
             notificationService.cancelScheduledPasses()
-            WidgetPassSyncService.publish(snapshot: nil)
-            PassLiveActivityManager.endAll()
+            WidgetPassSyncService.clearWidgetAndLiveActivity()
         } catch {
-            passesError = error.localizedDescription
+            passesError = StoreErrorMessage.text(for: error)
         }
         isLoadingPasses = false
+    }
+
+    private static func representativePass(from passes: [ISSPass]) -> ISSPass? {
+        let now = Date()
+        let sorted = passes.sorted { $0.startDate < $1.startDate }
+        if let active = sorted.first(where: { now >= $0.startDate && now <= $0.endDate }) {
+            return active
+        }
+        return sorted.first(where: { $0.startDate > now }) ?? sorted.first
     }
 
     func loadGallery() async {
@@ -137,7 +177,7 @@ final class ISSTrackerStore {
             gallery = try await api.fetchISSImages()
             selectedGalleryIndex = Int.random(in: 0 ..< max(gallery.count, 1))
         } catch {
-            galleryError = error.localizedDescription
+            galleryError = StoreErrorMessage.text(for: error)
         }
         isLoadingGallery = false
     }

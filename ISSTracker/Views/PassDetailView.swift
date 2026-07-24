@@ -60,19 +60,10 @@ struct PassDetailView: View {
             Section {
                 Toggle("Track this pass live", isOn: $trackLiveActivity)
                     .onChange(of: trackLiveActivity) { _, enabled in
-                        let snapshot = SharedPassSnapshot(
-                            placeName: placeName,
-                            startUTC: pass.startUTC,
-                            endUTC: pass.endUTC,
-                            startAzCompass: pass.startAzCompass,
-                            maxEl: pass.maxEl,
-                            updatedAt: Date().timeIntervalSince1970
-                        )
                         if enabled {
-                            WidgetPassSyncService.publish(snapshot: snapshot)
-                            PassLiveActivityManager.sync(with: snapshot)
+                            WidgetPassSyncService.setTrackedPass(pass, placeName: placeName)
                         } else {
-                            PassLiveActivityManager.endAll()
+                            WidgetPassSyncService.clearTrackedPass(matching: pass)
                         }
                     }
             } header: {

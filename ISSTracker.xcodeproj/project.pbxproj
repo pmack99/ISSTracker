@@ -67,6 +67,11 @@
 			path = ISSTrackerTests;
 			sourceTree = "<group>";
 		};
+		B60000012F00000600000001 /* ISSShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ISSShared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +106,7 @@
 				A10000022F00000100000002 /* ISSTracker */,
 				A20000022F00000200000002 /* ISSTrackerWidget */,
 				A40000022F00000400000002 /* ISSTrackerTests */,
+				B60000012F00000600000001 /* ISSShared */,
 				A30000032F00000300000003 /* Config */,
 				A10000052F00000100000005 /* Products */,
 			);
@@ -145,6 +151,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A10000022F00000100000002 /* ISSTracker */,
+				B60000012F00000600000001 /* ISSShared */,
 			);
 			name = ISSTracker;
 			packageProductDependencies = (
@@ -168,6 +175,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A20000022F00000200000002 /* ISSTrackerWidget */,
+				B60000012F00000600000001 /* ISSShared */,
 			);
 			name = ISSTrackerWidget;
 			packageProductDependencies = (

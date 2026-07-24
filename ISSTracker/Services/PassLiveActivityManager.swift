@@ -3,44 +3,47 @@ import Foundation
 
 @MainActor
 enum PassLiveActivityManager {
-    private static var updateTask: Task<Void, Never>?
+    private static var syncTask: Task<Void, Never>?
 
     static func sync(with snapshot: SharedPassSnapshot?) {
-        updateTask?.cancel()
-        guard let snapshot else {
-            endAll()
-            return
-        }
+        syncTask?.cancel()
+        syncTask = Task {
+            await endAllActivities()
 
-        let now = Date()
-        guard now >= snapshot.startDate.addingTimeInterval(-120), now <= snapshot.endDate else {
-            if now > snapshot.endDate { endAll() }
-            return
-        }
+            guard !Task.isCancelled, let snapshot else { return }
 
-        Task {
-            await startOrUpdate(snapshot: snapshot)
-            updateTask = Task {
-                while !Task.isCancelled {
-                    try? await Task.sleep(for: .seconds(15))
-                    guard !Task.isCancelled else { return }
-                    if Date() > snapshot.endDate {
-                        endAll()
-                        return
-                    }
-                    await startOrUpdate(snapshot: snapshot)
+            let now = Date()
+            guard now >= snapshot.startDate.addingTimeInterval(-120), now <= snapshot.endDate else {
+                if now > snapshot.endDate {
+                    await endAllActivities()
                 }
+                return
+            }
+
+            await startOrUpdate(snapshot: snapshot)
+
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(15))
+                guard !Task.isCancelled else { return }
+                if Date() > snapshot.endDate {
+                    await endAllActivities()
+                    return
+                }
+                await startOrUpdate(snapshot: snapshot)
             }
         }
     }
 
     static func endAll() {
-        updateTask?.cancel()
-        updateTask = nil
-        Task {
-            for activity in Activity<PassActivityAttributes>.activities {
-                await activity.end(nil, dismissalPolicy: .immediate)
-            }
+        syncTask?.cancel()
+        syncTask = Task {
+            await endAllActivities()
+        }
+    }
+
+    private static func endAllActivities() async {
+        for activity in Activity<PassActivityAttributes>.activities {
+            await activity.end(nil, dismissalPolicy: .immediate)
         }
     }
 

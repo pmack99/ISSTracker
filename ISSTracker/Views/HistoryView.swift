@@ -36,6 +36,9 @@ struct HistoryView: View {
                                     Label(record.appearsFrom, systemImage: "location.north.line")
                                     Label("\(Int(record.maxElevation))°", systemImage: "arrow.up.right")
                                     Label(formatDuration(record.durationSeconds), systemImage: "timer")
+                                    if record.passCount > 1 {
+                                        Label("\(record.passCount) passes", systemImage: "list.bullet")
+                                    }
                                 }
                                 .font(.caption)
                                 .foregroundStyle(.secondary)

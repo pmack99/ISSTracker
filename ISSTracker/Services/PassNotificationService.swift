@@ -62,6 +62,7 @@ final class PassNotificationService {
             leadMinutes: leadTimeMinutes
         )
         var scheduled = 0
+        var failed = 0
 
         for pass in toSchedule {
             let fireDate = PassNotificationPlanner.fireDate(for: pass, leadMinutes: leadTimeMinutes)
@@ -82,12 +83,14 @@ final class PassNotificationService {
                 try await center.add(request)
                 scheduled += 1
             } catch {
+                failed += 1
                 continue
             }
         }
 
         lastScheduleSummary = PassNotificationPlanner.scheduleSummary(
             scheduledCount: scheduled,
+            failedCount: failed,
             leadMinutes: leadTimeMinutes
         )
     }

@@ -39,11 +39,18 @@ enum PassNotificationPlanner {
         "iss-pass-\(Int(startUTC))"
     }
 
-    static func scheduleSummary(scheduledCount: Int, leadMinutes: Int) -> String {
+    static func scheduleSummary(scheduledCount: Int, failedCount: Int = 0, leadMinutes: Int) -> String {
         if scheduledCount == 0 {
+            if failedCount > 0 {
+                return "Could not schedule pass reminders (\(failedCount) failed). Check notification settings."
+            }
             return "No upcoming passes were far enough out to schedule (\(leadMinutes) min notice)."
         }
         let noun = scheduledCount == 1 ? "reminder" : "reminders"
-        return "Scheduled \(scheduledCount) \(noun) (\(leadMinutes) min before each pass)."
+        var summary = "Scheduled \(scheduledCount) \(noun) (\(leadMinutes) min before each pass)."
+        if failedCount > 0 {
+            summary += " \(failedCount) could not be scheduled."
+        }
+        return summary
     }
 }

@@ -24,6 +24,7 @@ struct SharedPassSnapshot: Codable, Equatable {
 enum SharedPassStorage {
     static let appGroupID = "group.com.pmack99.ISSTracker"
     private static let snapshotKey = "nextPassSnapshot"
+    private static let trackedPassStartKey = "trackedPassStartUTC"
 
     static var defaults: UserDefaults? {
         UserDefaults(suiteName: appGroupID)
@@ -44,5 +45,20 @@ enum SharedPassStorage {
               let snapshot = try? JSONDecoder().decode(SharedPassSnapshot.self, from: data)
         else { return nil }
         return snapshot
+    }
+
+    static func saveTrackedPassStartUTC(_ startUTC: TimeInterval?) {
+        guard let defaults else { return }
+        if let startUTC {
+            defaults.set(startUTC, forKey: trackedPassStartKey)
+        } else {
+            defaults.removeObject(forKey: trackedPassStartKey)
+        }
+    }
+
+    static func loadTrackedPassStartUTC() -> TimeInterval? {
+        guard let defaults else { return nil }
+        let value = defaults.double(forKey: trackedPassStartKey)
+        return value == 0 ? nil : value
     }
 }
