@@ -13,12 +13,12 @@ struct PassesView: View {
 
     private let leadTimeOptions = [5, 10, 15, 30]
 
-    private var primarySavedLocation: SavedLocation? {
-        savedLocations.first(where: \.isWidgetPrimary)
+    private var defaultSavedLocation: SavedLocation? {
+        savedLocations.first(where: \.isDefaultLocation)
     }
 
     private var heroPlaceName: String? {
-        store.lastSearchLabel ?? primarySavedLocation?.name
+        store.lastSearchLabel ?? defaultSavedLocation?.name
     }
 
     private var tonightPass: ISSPass? {
@@ -39,10 +39,10 @@ struct PassesView: View {
                     tonightPass: tonightPass,
                     nextUpcomingPass: nextUpcomingPass,
                     isLoading: store.isLoadingPasses,
-                    hasPrimarySavedLocation: primarySavedLocation != nil
+                    hasDefaultSavedLocation: defaultSavedLocation != nil
                 ) {
                     Task {
-                        await store.refreshWidgetForPrimarySavedLocation(
+                        await store.refreshPassesForDefaultSavedLocation(
                             modelContext: modelContext,
                             notificationService: passNotifications
                         )
@@ -180,7 +180,7 @@ struct PassesView: View {
             .navigationTitle("Overhead")
             .toolbarTitleDisplayMode(.inlineLarge)
             .task {
-                await store.refreshWidgetForPrimarySavedLocation(
+                await store.refreshPassesForDefaultSavedLocation(
                     modelContext: modelContext,
                     notificationService: passNotifications
                 )

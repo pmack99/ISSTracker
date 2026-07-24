@@ -58,25 +58,25 @@ struct PassDetailView: View {
             }
 
             Section {
-                Toggle("Track this pass live", isOn: $trackLiveActivity)
+                Toggle("Show Live Activity for this pass", isOn: $trackLiveActivity)
                     .onChange(of: trackLiveActivity) { _, enabled in
                         if enabled {
-                            WidgetPassSyncService.setTrackedPass(pass, placeName: placeName)
+                            PassLiveActivitySyncService.setTrackedPass(pass, placeName: placeName)
                         } else {
-                            WidgetPassSyncService.clearTrackedPass(matching: pass)
+                            PassLiveActivitySyncService.clearTrackedPass(matching: pass)
                         }
                     }
             } header: {
-                Text("Dynamic Island")
+                Text("Live Activity")
             } footer: {
-                Text("Shows a Live Activity during the pass window while the system allows it. Works best on a physical iPhone.")
+                Text("When on, shows this pass on the Lock Screen and Dynamic Island during the pass window (on supported iPhones). A pass search alone does not turn this on—you choose it here.")
             }
         }
         .navigationTitle("Pass detail")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             headingManager.start()
-            trackLiveActivity = WidgetPassSyncService.isTrackingPass(pass)
+            trackLiveActivity = PassLiveActivitySyncService.isLiveActivityEnabled(for: pass)
         }
         .onDisappear { headingManager.stop() }
         .tint(ISSTheme.accent)

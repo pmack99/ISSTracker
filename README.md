@@ -15,16 +15,20 @@ Run unit tests: **⌘U** or `xcodebuild test -scheme ISSTracker -destination 'pl
 
 | Tab | Description |
 |-----|-------------|
-| **Live** | MapKit map with ISS position (updates every 30s) |
-| **Overhead** | Visible pass predictions by city/zip or current location |
-| **History** | On-device search history (SwiftData) |
+| **Live** | Hybrid map with smooth ISS motion; dock panels for orbit, crew (Open Notify), and cabin telemetry (NASA ISSLIVE) |
+| **Passes** | Visible pass predictions by city/ZIP or current location; default saved place; local reminders |
+| **History** | On-device pass search history (SwiftData) |
 | **Photos** | NASA ISS image gallery |
-| **About** | Credits and data sources |
+| **About** | Credits, data sources, support & privacy links |
+
+Also: **Live Activity** on supported iPhones for pass countdown (Lock Screen / Dynamic Island); compass assist on pass detail.
 
 ## APIs
 
 - [Where The ISS At](https://wheretheiss.at/) — live position
 - [ISS Tracker API](https://iss.cdnspace.ca/) — visible pass predictions (no API key)
+- [Open Notify](http://open-notify.org/) — people in space (crew)
+- NASA **ISSLIVE** / Lightstreamer — cabin environment telemetry
 - Apple **Core Location** / **CLGeocoder** — geocoding
 - [NASA Image and Video Library](https://images.nasa.gov/) — photos
 

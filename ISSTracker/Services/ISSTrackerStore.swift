@@ -33,8 +33,11 @@ final class ISSTrackerStore {
     private let cabinStream = ISSLiveCabinStreamService()
     private var positionRefreshTask: Task<Void, Never>?
     private var cabinStreamActive = false
+    private var crewRefreshTask: Task<Void, Never>?
     private var isLiveTabVisible = false
     private var isSceneActive = false
+
+    private let crewRefreshInterval: TimeInterval = 600
 
     func setLiveTabVisible(_ visible: Bool) {
         isLiveTabVisible = visible
@@ -76,8 +79,10 @@ final class ISSTrackerStore {
         let shouldRun = isLiveTabVisible && isSceneActive
         if shouldRun {
             startCabinStreamIfNeeded()
+            startCrewRefreshIfNeeded()
         } else {
             stopCabinStreamIfNeeded()
+            stopCrewRefreshIfNeeded()
         }
     }
 
@@ -97,6 +102,22 @@ final class ISSTrackerStore {
         guard cabinStreamActive else { return }
         cabinStreamActive = false
         cabinStream.stop()
+    }
+
+    private func startCrewRefreshIfNeeded() {
+        guard crewRefreshTask == nil else { return }
+        crewRefreshTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(crewRefreshInterval))
+                guard !Task.isCancelled else { return }
+                await refreshCrew()
+            }
+        }
+    }
+
+    private func stopCrewRefreshIfNeeded() {
+        crewRefreshTask?.cancel()
+        crewRefreshTask = nil
     }
 
     func startLiveUpdates() {
@@ -166,11 +187,11 @@ final class ISSTrackerStore {
                 }
                 await notificationService.schedulePasses(results, placeName: placeName)
             }
-            WidgetPassSyncService.publishFromSearch(passes: results, placeName: placeName)
+            PassLiveActivitySyncService.publishFromSearch(passes: results, placeName: placeName)
         } catch ISSAPIError.noPasses {
             passesError = ISSAPIError.noPasses.localizedDescription
             notificationService.cancelScheduledPasses()
-            WidgetPassSyncService.clearPassTrackingAndLiveActivity()
+            PassLiveActivitySyncService.clearPassTrackingAndLiveActivity()
         } catch {
             passesError = StoreErrorMessage.text(for: error)
         }
@@ -204,19 +225,19 @@ final class ISSTrackerStore {
         selectedGalleryIndex = Int.random(in: 0 ..< gallery.count)
     }
 
-    func refreshWidgetForPrimarySavedLocation(
+    func refreshPassesForDefaultSavedLocation(
         modelContext: ModelContext,
         notificationService: PassNotificationService
     ) async {
         let descriptor = FetchDescriptor<SavedLocation>(sortBy: [SortDescriptor(\SavedLocation.createdAt, order: .reverse)])
         guard let locations = try? modelContext.fetch(descriptor),
-              let primary = locations.first(where: \.isWidgetPrimary)
+              let defaultLocation = locations.first(where: \.isDefaultLocation)
         else { return }
 
         await searchPasses(
-            placeName: primary.name,
-            latitude: primary.latitude,
-            longitude: primary.longitude,
+            placeName: defaultLocation.name,
+            latitude: defaultLocation.latitude,
+            longitude: defaultLocation.longitude,
             modelContext: modelContext,
             notificationService: notificationService,
             saveToHistory: false

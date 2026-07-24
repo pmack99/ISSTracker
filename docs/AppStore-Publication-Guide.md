@@ -79,11 +79,11 @@ App Store Connect shows **required sizes** for your account; capture on the **la
 | # | Tab / screen | What to show |
 |---|----------------|--------------|
 | 1 | **Live** | Hybrid map, red **ISS** label, station marker, Follow ISS enabled |
-| 2 | **Overhead** | Pass list after a search (city or current location) |
+| 2 | **Overhead** | Pass list after a search (city or current location); optional Live dock CREW/CABIN |
 | 3 | **Pass detail** | Compass / azimuth / elevation for one pass |
 | 4 | **Notifications** | iOS Settings → ISS Tracker → Notifications *or* in-app pass with alerts scheduled |
-| 5 | **Widget** | Home Screen with next-pass widget (after running a pass search) |
-| 6 | **History** or **Saved locations** | On-device history / saved places |
+| 5 | **Live Activity** | Pass detail with “Show Live Activity for this pass” enabled (physical iPhone) |
+| 6 | **History** or **Saved places** | On-device history / saved places |
 | 7 | **Photos** | NASA gallery (optional) |
 | 8 | **About** | Data sources / credits (optional) |
 
@@ -207,7 +207,7 @@ Or: Connect → TestFlight and upload via Xcode as above.
 
 1. Wait for processing (often 5–30 minutes).
 2. **Internal testing** → add yourself → install TestFlight build.
-3. Smoke test: Live map, pass search, notifications permission, widget, one pass detail.
+3. Smoke test: Live map and dock, pass search, notifications permission, Live Activity on pass detail, one pass detail compass.
 
 ### Submit for review
 

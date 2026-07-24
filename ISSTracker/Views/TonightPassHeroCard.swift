@@ -5,8 +5,8 @@ struct TonightPassHeroCard: View {
     let tonightPass: ISSPass?
     let nextUpcomingPass: ISSPass?
     let isLoading: Bool
-    let hasPrimarySavedLocation: Bool
-    var onRefreshPrimary: () -> Void
+    let hasDefaultSavedLocation: Bool
+    var onRefreshDefault: () -> Void
 
     var body: some View {
         Section {
@@ -29,11 +29,11 @@ struct TonightPassHeroCard: View {
                         placeName: placeName,
                         headline: "Next up"
                     )
-                } else if hasPrimarySavedLocation {
-                    Text("Couldn’t load passes for your starred location. Check your connection and try again.")
+                } else if hasDefaultSavedLocation {
+                    Text("Couldn’t load passes for your default location. Check your connection and try again.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Button("Refresh starred location", action: onRefreshPrimary)
+                    Button("Refresh default location", action: onRefreshDefault)
                         .buttonStyle(.bordered)
                         .tint(ISSTheme.accent)
                 } else {
@@ -47,7 +47,7 @@ struct TonightPassHeroCard: View {
             if let placeName {
                 Text("Based on passes for \(placeName). Search below for another location.")
             } else {
-                Text("Uses your starred saved place when you set one.")
+                Text("Uses your default saved place when you set one.")
             }
         }
     }

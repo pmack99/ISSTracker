@@ -1,7 +1,7 @@
 import Foundation
 
 @MainActor
-enum WidgetPassSyncService {
+enum PassLiveActivitySyncService {
     static func snapshot(from passes: [ISSPass], placeName: String) -> SharedPassSnapshot? {
         let now = Date()
         let sorted = passes.sorted { $0.startDate < $1.startDate }
@@ -15,7 +15,7 @@ enum WidgetPassSyncService {
         return nil
     }
 
-    /// Canonical update after a pass search (clears manual pass tracking).
+    /// After a pass search: sync Live Activity to the next pass (does not mark pass detail toggle on).
     static func publishFromSearch(passes: [ISSPass], placeName: String) {
         SharedPassStorage.saveTrackedPassStartUTC(nil)
         let snapshot = snapshot(from: passes, placeName: placeName)
@@ -27,7 +27,7 @@ enum WidgetPassSyncService {
         SharedPassStorage.save(snapshot)
     }
 
-    /// User chose a specific pass on the detail screen.
+    /// User enabled Live Activity for this pass on the detail screen.
     static func setTrackedPass(_ pass: ISSPass, placeName: String) {
         let snapshot = makeSnapshot(pass: pass, placeName: placeName)
         SharedPassStorage.saveTrackedPassStartUTC(pass.startUTC)
@@ -36,7 +36,7 @@ enum WidgetPassSyncService {
     }
 
     static func clearTrackedPass(matching pass: ISSPass) {
-        guard widgetShowsPass(pass) else { return }
+        guard liveActivityShowsPass(pass) else { return }
         SharedPassStorage.saveTrackedPassStartUTC(nil)
         publish(snapshot: nil)
         PassLiveActivityManager.endAll()
@@ -46,11 +46,6 @@ enum WidgetPassSyncService {
         SharedPassStorage.saveTrackedPassStartUTC(nil)
         publish(snapshot: nil)
         PassLiveActivityManager.endAll()
-    }
-
-    @available(*, deprecated, renamed: "clearPassTrackingAndLiveActivity")
-    static func clearWidgetAndLiveActivity() {
-        clearPassTrackingAndLiveActivity()
     }
 
     static func makeSnapshot(pass: ISSPass, placeName: String) -> SharedPassSnapshot {
@@ -64,17 +59,17 @@ enum WidgetPassSyncService {
         )
     }
 
-    /// Whether the Live Activity currently reflects this pass.
-    static func isTrackingPass(_ pass: ISSPass) -> Bool {
-        guard let snapshot = SharedPassStorage.load() else { return false }
-        return passStartMatches(snapshot.startUTC, pass.startUTC)
+    /// Pass detail toggle: on only if the user explicitly enabled Live Activity for this pass.
+    static func isLiveActivityEnabled(for pass: ISSPass) -> Bool {
+        guard let tracked = SharedPassStorage.loadTrackedPassStartUTC() else { return false }
+        return passStartMatches(tracked, pass.startUTC)
     }
 
     nonisolated static func passStartMatches(_ lhs: TimeInterval, _ rhs: TimeInterval) -> Bool {
         abs(lhs - rhs) < 1.0
     }
 
-    private static func widgetShowsPass(_ pass: ISSPass) -> Bool {
+    private static func liveActivityShowsPass(_ pass: ISSPass) -> Bool {
         if let tracked = SharedPassStorage.loadTrackedPassStartUTC(),
            passStartMatches(tracked, pass.startUTC) {
             return true

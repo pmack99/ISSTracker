@@ -32,7 +32,7 @@ struct SavedLocationsSection: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        if location.isWidgetPrimary {
+                        if location.isDefaultLocation {
                             Image(systemName: "star.fill")
                                 .foregroundStyle(ISSTheme.accent)
                                 .accessibilityLabel("Default pass location")
@@ -48,7 +48,7 @@ struct SavedLocationsSection: View {
                     }
 
                     Button {
-                        setWidgetPrimary(location)
+                        setDefaultLocation(location)
                     } label: {
                         Label("Default", systemImage: "star")
                     }
@@ -76,15 +76,15 @@ struct SavedLocationsSection: View {
             name: name,
             latitude: latitude,
             longitude: longitude,
-            isWidgetPrimary: isFirst
+            isDefaultLocation: isFirst
         )
         modelContext.insert(location)
         try? modelContext.save()
     }
 
-    private func setWidgetPrimary(_ location: SavedLocation) {
+    private func setDefaultLocation(_ location: SavedLocation) {
         for item in savedLocations {
-            item.isWidgetPrimary = item.persistentModelID == location.persistentModelID
+            item.isDefaultLocation = item.persistentModelID == location.persistentModelID
         }
         try? modelContext.save()
     }
