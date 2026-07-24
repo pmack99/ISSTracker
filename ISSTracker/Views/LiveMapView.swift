@@ -1,3 +1,4 @@
+import CoreLocation
 import MapKit
 import SwiftUI
 
@@ -61,6 +62,14 @@ struct LiveMapView: View {
     @ViewBuilder
     private func mapContent(for position: ISSPosition) -> some View {
         Map(position: $cameraPosition) {
+            if store.orbitPath.count >= 2 {
+                MapPolyline(coordinates: store.orbitPath)
+                    .stroke(
+                        ISSTheme.accent.opacity(0.55),
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round, dash: [10, 8])
+                    )
+            }
+
             Annotation("ISS", coordinate: CLLocationCoordinate2D(latitude: position.latitude, longitude: position.longitude)) {
                 Image("ISSMarker")
                     .resizable()
@@ -97,6 +106,10 @@ private struct ISSMetricsCard: View {
             Text("Updated \(position.updatedAt.formatted(date: .abbreviated, time: .standard)) · refreshes every 30s")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            Text("Dashed line shows the next ~2 minutes of orbit.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
 
             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
                 GridRow {
