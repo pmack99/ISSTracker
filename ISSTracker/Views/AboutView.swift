@@ -22,7 +22,7 @@ struct AboutView: View {
                         Text("Data sources")
                             .font(.headline)
                         sourceRow("Live position", detail: "Where The ISS At", icon: "antenna.radiowaves.left.and.right")
-                        sourceRow("Visible passes", detail: "N2YO", icon: "eye")
+                        sourceRow("Visible passes", detail: "ISS Tracker API", icon: "eye")
                         sourceRow("Geocoding", detail: "Apple MapKit", icon: "mappin.and.ellipse")
                         sourceRow("Photos", detail: "NASA Image and Video Library", icon: "photo")
                     }

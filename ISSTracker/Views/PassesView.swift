@@ -9,14 +9,46 @@ struct PassesView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var searchText = ""
+    @Query(sort: \SavedLocation.createdAt, order: .reverse) private var savedLocations: [SavedLocation]
 
     private let leadTimeOptions = [5, 10, 15, 30]
+
+    private var primarySavedLocation: SavedLocation? {
+        savedLocations.first(where: \.isWidgetPrimary)
+    }
+
+    private var heroPlaceName: String? {
+        store.lastSearchLabel ?? primarySavedLocation?.name
+    }
+
+    private var tonightPass: ISSPass? {
+        PassHighlightLogic.nextPassTonight(from: store.passes)
+    }
+
+    private var nextUpcomingPass: ISSPass? {
+        PassHighlightLogic.nextUpcomingPass(from: store.passes)
+    }
 
     var body: some View {
         @Bindable var notifications = passNotifications
 
         NavigationStack {
             List {
+                TonightPassHeroCard(
+                    placeName: heroPlaceName,
+                    tonightPass: tonightPass,
+                    nextUpcomingPass: nextUpcomingPass,
+                    isLoading: store.isLoadingPasses,
+                    hasPrimarySavedLocation: primarySavedLocation != nil
+                ) {
+                    Task {
+                        await store.refreshWidgetForPrimarySavedLocation(
+                            modelContext: modelContext,
+                            notificationService: passNotifications
+                        )
+                    }
+                }
+
                 Section {
                     Toggle("Remind me before passes", isOn: $notifications.notificationsEnabled)
                         .onChange(of: passNotifications.notificationsEnabled) { _, enabled in
@@ -82,7 +114,7 @@ struct PassesView: View {
                 } header: {
                     Text("Where to look")
                 } footer: {
-                    Text("Visible ISS passes for the next 10 days (N2YO).")
+                    Text("Visible ISS passes for the next 10 days.")
                 }
 
                 SavedLocationsSection(

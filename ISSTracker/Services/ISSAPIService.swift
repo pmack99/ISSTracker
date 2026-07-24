@@ -5,7 +5,6 @@ enum ISSAPIError: LocalizedError {
     case badResponse
     case noPasses
     case decodingFailed
-    case missingAPIKey
 
     var errorDescription: String? {
         switch self {
@@ -13,7 +12,6 @@ enum ISSAPIError: LocalizedError {
         case .badResponse: "The space station service returned an error."
         case .noPasses: "No visible passes in the next 10 days for this location."
         case .decodingFailed: "Could not read the response from the server."
-        case .missingAPIKey: "N2YO API key is missing. Copy Config/Secrets.xcconfig.example to Secrets.xcconfig and add your key."
         }
     }
 }
@@ -36,9 +34,12 @@ struct ISSAPIService {
     }
 
     func fetchVisualPasses(latitude: Double, longitude: Double, days: Int = 10, maxPasses: Int = 300) async throws -> [ISSPass] {
-        guard APIConfiguration.isN2YOConfigured else { throw ISSAPIError.missingAPIKey }
-        var components = URLComponents(string: "https://api.n2yo.com/rest/v1/satellite/visualpasses/\(APIConfiguration.issNoradID)/\(latitude)/\(longitude)/0/\(days)/\(maxPasses)/")!
-        components.queryItems = [URLQueryItem(name: "apiKey", value: APIConfiguration.n2yoAPIKey)]
+        var components = URLComponents(string: ISSTrackerPassAPI.baseURL)!
+        components.queryItems = [
+            URLQueryItem(name: "lat", value: String(latitude)),
+            URLQueryItem(name: "lon", value: String(longitude)),
+            URLQueryItem(name: "days", value: String(min(max(days, 1), 30))),
+        ]
         guard let url = components.url else { throw ISSAPIError.invalidURL }
 
         let (data, response) = try await session.data(from: url)
@@ -46,11 +47,13 @@ struct ISSAPIService {
             throw ISSAPIError.badResponse
         }
 
-        let decoded = try JSONDecoder().decode(ISSPassResponse.self, from: data)
-        guard decoded.info.passescount > 0, let passes = decoded.passes, !passes.isEmpty else {
-            throw ISSAPIError.noPasses
+        let decoded = try JSONDecoder().decode([CDNPassRecord].self, from: data)
+        let passes = ISSTrackerPassAPI.mapPasses(from: decoded)
+        guard !passes.isEmpty else { throw ISSAPIError.noPasses }
+        if passes.count > maxPasses {
+            return Array(passes.prefix(maxPasses))
         }
-        return passes.map(ISSPass.init(from:))
+        return passes
     }
 
     func fetchISSImages(limit: Int = 40) async throws -> [NASAImageItem] {

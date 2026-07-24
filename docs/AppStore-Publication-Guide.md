@@ -18,7 +18,7 @@ Use this document when creating the app in **App Store Connect** and submitting 
 | Minimum iOS | **17.0** |
 | Primary device | iPhone (portrait) |
 | Price | Free (typical) |
-| N2YO API key | Set in `Config/Secrets.xcconfig` before **Release** archive (embedded via Info.plist at build time) |
+| Build secrets | Optional `Config/Secrets.xcconfig` for local overrides (pass predictions need no API key) |
 
 ---
 
@@ -124,7 +124,7 @@ Then declare:
 
 ### Third-party data
 
-Disclose in the questionnaire narrative / review notes that coordinates may be sent to **N2YO** and **Where The ISS At**, and place names to **Apple geocoding**, as described in the privacy policy.
+Disclose in the questionnaire narrative / review notes that coordinates may be sent to **ISS Tracker API** and **Where The ISS At**, and place names to **Apple geocoding**, as described in the privacy policy.
 
 ---
 
@@ -193,7 +193,7 @@ Optional: add to the merged Info.plist if Connect keeps prompting:
 
 1. **ISSTracker** target → **Signing & Capabilities** → Team **HF9W68H6LN**, Automatic signing.
 2. Same for **ISSTrackerWidget** extension.
-3. **Release** configuration: ensure `Secrets.xcconfig` has production N2YO key.
+3. **Release** configuration: ensure `Secrets.xcconfig` exists if your checkout uses it (optional; no API keys required for passes).
 
 ### Archive
 
@@ -238,7 +238,7 @@ Review often takes 24–48 hours; rejections commonly cite missing privacy detai
 - [ ] App Privacy questionnaire completed  
 - [ ] Age rating completed  
 - [ ] Review contact + notes filled  
-- [ ] Release archive with N2YO key in Secrets.xcconfig  
+- [ ] Release archive (no pass-prediction API key required)
 - [ ] TestFlight smoke test  
 - [ ] Submit for review  
 

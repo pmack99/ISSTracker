@@ -57,19 +57,17 @@ final class PassNotificationService {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
 
-        let lead = TimeInterval(leadTimeMinutes * 60)
+        let toSchedule = PassNotificationPlanner.passesToSchedule(
+            from: passes,
+            leadMinutes: leadTimeMinutes
+        )
         var scheduled = 0
-        let limit = 32
 
-        for pass in passes {
-            guard scheduled < limit else { break }
-
-            let fireDate = pass.startDate.addingTimeInterval(-lead)
-            guard fireDate > Date().addingTimeInterval(5) else { continue }
-
+        for pass in toSchedule {
+            let fireDate = PassNotificationPlanner.fireDate(for: pass, leadMinutes: leadTimeMinutes)
             let content = UNMutableNotificationContent()
             content.title = "ISS pass reminder"
-            content.body = reminderBody(pass: pass, placeName: placeName)
+            content.body = PassNotificationPlanner.reminderBody(pass: pass, placeName: placeName)
             content.sound = .default
 
             let components = Calendar.current.dateComponents(
@@ -77,7 +75,7 @@ final class PassNotificationService {
                 from: fireDate
             )
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let identifier = Self.identifier(for: pass.startUTC)
+            let identifier = PassNotificationPlanner.notificationIdentifier(startUTC: pass.startUTC)
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
             do {
@@ -88,25 +86,14 @@ final class PassNotificationService {
             }
         }
 
-        if scheduled == 0 {
-            lastScheduleSummary = "No upcoming passes were far enough out to schedule (\(leadTimeMinutes) min notice)."
-        } else {
-            lastScheduleSummary = "Scheduled \(scheduled) reminder\(scheduled == 1 ? "" : "s") (\(leadTimeMinutes) min before each pass)."
-        }
+        lastScheduleSummary = PassNotificationPlanner.scheduleSummary(
+            scheduledCount: scheduled,
+            leadMinutes: leadTimeMinutes
+        )
     }
 
     func cancelScheduledPasses() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         lastScheduleSummary = nil
-    }
-
-    private func reminderBody(pass: ISSPass, placeName: String) -> String {
-        let time = pass.startDate.formatted(date: .omitted, time: .shortened)
-        let maxEl = String(format: "%.0f", pass.maxEl)
-        return "Pass over \(placeName) at \(time). Look \(pass.startAzCompass), up to \(maxEl)°."
-    }
-
-    private static func identifier(for startUTC: TimeInterval) -> String {
-        "iss-pass-\(Int(startUTC))"
     }
 }

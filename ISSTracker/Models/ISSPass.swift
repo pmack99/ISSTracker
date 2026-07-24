@@ -23,8 +23,42 @@ struct ISSPass: Identifiable, Equatable {
         }
         return "\(seconds)s"
     }
+
+    init(
+        startUTC: TimeInterval,
+        endUTC: TimeInterval,
+        duration: Int,
+        startAzCompass: String,
+        endAzCompass: String,
+        startEl: Double,
+        maxEl: Double,
+        magnitude: Double? = nil
+    ) {
+        self.startUTC = startUTC
+        self.endUTC = endUTC
+        self.duration = duration
+        self.startAzCompass = startAzCompass
+        self.endAzCompass = endAzCompass
+        self.startEl = startEl
+        self.maxEl = maxEl
+        self.magnitude = magnitude
+    }
 }
 
+extension ISSPass {
+    init(from pass: ISSPassResponse.Pass) {
+        startUTC = pass.startUTC
+        endUTC = pass.endUTC
+        duration = pass.duration
+        startAzCompass = pass.startAzCompass
+        endAzCompass = pass.endAzCompass
+        startEl = pass.startEl
+        maxEl = pass.maxEl
+        magnitude = pass.mag
+    }
+}
+
+// Legacy N2YO-shaped payload (kept for unit tests).
 struct ISSPassResponse: Decodable {
     struct Info: Decodable {
         let passescount: Int
@@ -43,17 +77,4 @@ struct ISSPassResponse: Decodable {
 
     let info: Info
     let passes: [Pass]?
-}
-
-extension ISSPass {
-    init(from pass: ISSPassResponse.Pass) {
-        startUTC = pass.startUTC
-        endUTC = pass.endUTC
-        duration = pass.duration
-        startAzCompass = pass.startAzCompass
-        endAzCompass = pass.endAzCompass
-        startEl = pass.startEl
-        maxEl = pass.maxEl
-        magnitude = pass.mag
-    }
 }

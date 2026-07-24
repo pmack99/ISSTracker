@@ -18,6 +18,13 @@
 			remoteGlobalIDString = A20000062F00000200000006;
 			remoteInfo = ISSTrackerWidget;
 		};
+		A400000A2F0000040000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A100000A2F0000010000000A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000062F00000100000006;
+			remoteInfo = ISSTracker;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +47,7 @@
 		A30000012F00000300000001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		A30000022F00000300000002 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		A30000042F00000300000004 /* ISSTracker-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ISSTracker-Info.plist"; sourceTree = "<group>"; };
+		A40000012F00000400000001 /* ISSTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ISSTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -51,6 +59,11 @@
 		A20000022F00000200000002 /* ISSTrackerWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ISSTrackerWidget;
+			sourceTree = "<group>";
+		};
+		A40000022F00000400000002 /* ISSTrackerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ISSTrackerTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -70,6 +83,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A40000032F00000400000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +98,7 @@
 			children = (
 				A10000022F00000100000002 /* ISSTracker */,
 				A20000022F00000200000002 /* ISSTrackerWidget */,
+				A40000022F00000400000002 /* ISSTrackerTests */,
 				A30000032F00000300000003 /* Config */,
 				A10000052F00000100000005 /* Products */,
 			);
@@ -88,6 +109,7 @@
 			children = (
 				A10000012F00000100000001 /* ISSTracker.app */,
 				A20000012F00000200000001 /* ISSTrackerWidget.appex */,
+				A40000012F00000400000001 /* ISSTrackerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -151,6 +173,29 @@
 			productReference = A20000012F00000200000001 /* ISSTrackerWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		A40000062F00000400000006 /* ISSTrackerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A40000072F00000400000007 /* Build configuration list for PBXNativeTarget "ISSTrackerTests" */;
+			buildPhases = (
+				A40000082F00000400000008 /* Sources */,
+				A40000032F00000400000003 /* Frameworks */,
+				A40000092F00000400000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A400000B2F0000040000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A40000022F00000400000002 /* ISSTrackerTests */,
+			);
+			name = ISSTrackerTests;
+			packageProductDependencies = (
+			);
+			productName = ISSTrackerTests;
+			productReference = A40000012F00000400000001 /* ISSTrackerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -166,6 +211,10 @@
 					};
 					A20000062F00000200000006 = {
 						CreatedOnToolsVersion = 26.0;
+					};
+					A40000062F00000400000006 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = A10000062F00000100000006;
 					};
 				};
 			};
@@ -185,6 +234,7 @@
 			targets = (
 				A10000062F00000100000006 /* ISSTracker */,
 				A20000062F00000200000006 /* ISSTrackerWidget */,
+				A40000062F00000400000006 /* ISSTrackerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -198,6 +248,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A20000092F00000200000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A40000092F00000400000009 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -221,6 +278,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A40000082F00000400000008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -228,6 +292,11 @@
 			isa = PBXTargetDependency;
 			target = A20000062F00000200000006 /* ISSTrackerWidget */;
 			targetProxy = A20000112F00000200000011 /* PBXContainerItemProxy */;
+		};
+		A400000B2F0000040000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000062F00000100000006 /* ISSTracker */;
+			targetProxy = A400000A2F0000040000000A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -406,6 +475,56 @@
 			};
 			name = Release;
 		};
+		A400000E2F0000040000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HF9W68H6LN;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pmack99.ISSTrackerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ISSTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ISSTracker";
+			};
+			name = Debug;
+		};
+		A400000F2F0000040000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HF9W68H6LN;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pmack99.ISSTrackerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ISSTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ISSTracker";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -432,6 +551,15 @@
 			buildConfigurations = (
 				A200000E2F0000020000000E /* Debug */,
 				A200000F2F0000020000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A40000072F00000400000007 /* Build configuration list for PBXNativeTarget "ISSTrackerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A400000E2F0000040000000E /* Debug */,
+				A400000F2F0000040000000F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

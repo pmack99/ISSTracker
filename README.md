@@ -5,11 +5,11 @@ Native iPhone port of [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew
 ## Open in Xcode
 
 1. Open `ISSTracker.xcodeproj` in Xcode.
-2. Copy `Config/Secrets.xcconfig.example` to `Config/Secrets.xcconfig` and set your [N2YO](https://www.n2yo.com/) API key (`Secrets.xcconfig` is gitignored).
+2. Copy `Config/Secrets.xcconfig.example` to `Config/Secrets.xcconfig` if the file is missing (optional local overrides; `Secrets.xcconfig` is gitignored).
 3. Select the **ISSTracker** target and your **Team** for signing.
 4. Run on a simulator or device (**⌘R**).
 
-If the key was ever committed to Git, **rotate it** in your N2YO account and use the new value only in `Secrets.xcconfig`.
+Run unit tests: **⌘U** or `xcodebuild test -scheme ISSTracker -destination 'platform=iOS Simulator,name=iPhone 17'`.
 
 ## Features
 
@@ -24,7 +24,7 @@ If the key was ever committed to Git, **rotate it** in your N2YO account and use
 ## APIs
 
 - [Where The ISS At](https://wheretheiss.at/) — live position
-- [N2YO](https://www.n2yo.com/) — visible pass predictions (API key in `Config/Secrets.xcconfig`, not in git)
+- [ISS Tracker API](https://iss.cdnspace.ca/) — visible pass predictions (no API key)
 - Apple **Core Location** / **CLGeocoder** — geocoding
 - [NASA Image and Video Library](https://images.nasa.gov/) — photos
 

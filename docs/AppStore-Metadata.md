@@ -39,7 +39,7 @@ ISS Tracker shows the station’s live position on a hybrid map with a smooth-mo
 
 FEATURES
 • Live map — real-time ISS position (updates about every 30 seconds)
-• Overhead passes — visible pass predictions powered by N2YO
+• Overhead passes — visible pass predictions for your location
 • Pass reminders — local notifications before a pass (your choice)
 • Compass assist — heading and elevation on pass detail
 • Saved locations — quick searches for places you care about
@@ -49,7 +49,7 @@ FEATURES
 • NASA gallery — browse ISS photos from NASA’s public library
 
 DATA & PRIVACY
-No account required. Pass history and saved places stay on your device. Location is used only when you ask for pass predictions based on “current location.” See our privacy policy for third-party APIs (Where The ISS At, N2YO, Apple Maps, NASA).
+No account required. Pass history and saved places stay on your device. Location is used only when you ask for pass predictions based on “current location.” See our privacy policy for third-party APIs (Where The ISS At, ISS Tracker API, Apple Maps, NASA).
 
 ISS Tracker continues an open-source project from the UCF Coding Bootcamp, rebuilt as a native SwiftUI app with MapKit.
 
@@ -118,7 +118,7 @@ ISS Tracker does not require sign-in or a demo account.
 
 HOW TO TEST:
 1. Open the Live tab — the ISS position loads from the public “Where The ISS At” API (internet required).
-2. Open Overhead — enter a city or ZIP (e.g. “Orlando, FL” or “32801”) and run search; pass list uses N2YO with an API key embedded at build time.
+2. Open Overhead — enter a city or ZIP (e.g. “Orlando, FL” or “32801”) and run search; pass list loads from the public ISS Tracker API (internet required).
 3. Optional: allow Location When In Use and search using current location.
 4. Optional: allow Notifications when prompted after scheduling passes from a search.
 5. Widget/Live Activity: run a pass search once; add the widget from the Home Screen widget gallery.

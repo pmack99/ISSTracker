@@ -12,6 +12,14 @@ enum CompassAzimuth {
         compassToDegrees[compass.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()]
     }
 
+    static func label(for degrees: Double) -> String {
+        let labels = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        var bearing = degrees.truncatingRemainder(dividingBy: 360)
+        if bearing < 0 { bearing += 360 }
+        let index = Int((bearing + 11.25) / 22.5) % labels.count
+        return labels[index]
+    }
+
     static func turnInstruction(deviceHeading: Double, targetDegrees: Double) -> String {
         let delta = normalizedDelta(from: deviceHeading, to: targetDegrees)
         if abs(delta) <= 8 { return "You're facing the right direction" }
