@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let webRepoURL = URL(string: "https://github.com/pmack99/Brandnew_ISS_Tracker")!
-    private let iosRepoURL = URL(string: "https://github.com/pmack99/ISSTracker")!
+    private let supportURL = URL(string: "https://pmack99.github.io/ISSTracker/support.html")!
+    private let privacyURL = URL(string: "https://pmack99.github.io/ISSTracker/privacy.html")!
 
     var body: some View {
         NavigationStack {
@@ -29,13 +29,16 @@ struct AboutView: View {
                     .issGroupedCard()
 
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Project links")
+                        Text("Support")
                             .font(.headline)
-                        Link(destination: iosRepoURL) {
-                            Label("iOS app on GitHub", systemImage: "iphone")
+                        Link(destination: supportURL) {
+                            Label("Help & FAQ", systemImage: "questionmark.circle")
                         }
-                        Link(destination: webRepoURL) {
-                            Label("Original web app on GitHub", systemImage: "safari")
+                        Link(destination: privacyURL) {
+                            Label("Privacy Policy", systemImage: "hand.raised")
+                        }
+                        Link(destination: URL(string: "mailto:3PMStudios@protonmail.com")!) {
+                            Label("3PMStudios@protonmail.com", systemImage: "envelope")
                         }
                     }
                     .issGroupedCard()
