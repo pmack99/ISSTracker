@@ -7,6 +7,7 @@ import SwiftData
 final class ISSTrackerStore {
     var position: ISSPosition?
     var orbitPath: [CLLocationCoordinate2D] = []
+    var orbitPathEndBearing: Double = 0
     var passes: [ISSPass] = []
     var gallery: [NASAImageItem] = []
     var selectedGalleryIndex = 0
@@ -56,15 +57,17 @@ final class ISSTrackerStore {
     }
 
     private func refreshOrbitPath(for latest: ISSPosition) async {
-        if let path = try? await api.fetchOrbitPath(
+        let forwardFromAPI = try? await api.fetchOrbitPath(
             latitude: latest.latitude,
-            longitude: latest.longitude,
-            seconds: 120
-        ), path.count >= 2 {
-            orbitPath = path
-        } else {
-            orbitPath = OrbitPathBuilder.extrapolatedForward(from: latest, previous: previousPosition)
-        }
+            longitude: latest.longitude
+        )
+        let path = OrbitPathBuilder.forwardPath(
+            current: latest,
+            previous: previousPosition,
+            forwardFromAPI: forwardFromAPI
+        )
+        orbitPath = path
+        orbitPathEndBearing = OrbitPathBuilder.endBearing(for: path)
         previousPosition = latest
     }
 

@@ -34,7 +34,11 @@ struct ISSAPIService {
         return try decoder.decode(ISSPosition.self, from: data)
     }
 
-    func fetchOrbitPath(latitude: Double, longitude: Double, seconds: Int = 120) async throws -> [CLLocationCoordinate2D] {
+    func fetchOrbitPath(
+        latitude: Double,
+        longitude: Double,
+        seconds: Int = OrbitPathBuilder.defaultForwardSeconds
+    ) async throws -> [CLLocationCoordinate2D] {
         var components = URLComponents(
             string: "https://api.n2yo.com/rest/v1/satellite/positions/\(APIConfiguration.issNoradID)/\(latitude)/\(longitude)/0/\(seconds)/"
         )!

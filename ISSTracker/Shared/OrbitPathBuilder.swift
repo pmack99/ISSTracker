@@ -11,21 +11,34 @@ struct N2YOOrbitResponse: Decodable {
 }
 
 enum OrbitPathBuilder {
+    static let defaultForwardSeconds = 300
+    static let stepDistanceKm = 90.0
+
     static func coordinates(from response: N2YOOrbitResponse) -> [CLLocationCoordinate2D] {
         response.positions.map {
             CLLocationCoordinate2D(latitude: $0.satlatitude, longitude: $0.satlongitude)
         }
     }
 
-    static func extrapolatedForward(from current: ISSPosition, previous: ISSPosition?, steps: Int = 24, stepDistanceKm: Double = 90) -> [CLLocationCoordinate2D] {
-        let start = CLLocationCoordinate2D(latitude: current.latitude, longitude: current.longitude)
-        let bearing: Double
-        if let previous {
-            let prior = CLLocationCoordinate2D(latitude: previous.latitude, longitude: previous.longitude)
-            bearing = initialBearing(from: prior, to: start)
-        } else {
-            bearing = 90
+    static func forwardPath(
+        current: ISSPosition,
+        previous: ISSPosition?,
+        forwardFromAPI: [CLLocationCoordinate2D]?
+    ) -> [CLLocationCoordinate2D] {
+        if let forwardFromAPI, forwardFromAPI.count >= 2 {
+            return forwardFromAPI
         }
+        return extrapolatedForward(from: current, previous: previous)
+    }
+
+    static func endBearing(for path: [CLLocationCoordinate2D]) -> Double {
+        guard path.count >= 2 else { return 0 }
+        return initialBearing(from: path[path.count - 2], to: path[path.count - 1])
+    }
+
+    static func extrapolatedForward(from current: ISSPosition, previous: ISSPosition?, steps: Int = 34, stepDistanceKm: Double = stepDistanceKm) -> [CLLocationCoordinate2D] {
+        let start = CLLocationCoordinate2D(latitude: current.latitude, longitude: current.longitude)
+        let bearing = travelBearing(current: current, previous: previous)
 
         var path = [start]
         var point = start
@@ -34,6 +47,15 @@ enum OrbitPathBuilder {
             path.append(point)
         }
         return path
+    }
+
+    private static func travelBearing(current: ISSPosition, previous: ISSPosition?) -> Double {
+        if let previous {
+            let prior = CLLocationCoordinate2D(latitude: previous.latitude, longitude: previous.longitude)
+            let here = CLLocationCoordinate2D(latitude: current.latitude, longitude: current.longitude)
+            return initialBearing(from: prior, to: here)
+        }
+        return 90
     }
 
     private static func initialBearing(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {

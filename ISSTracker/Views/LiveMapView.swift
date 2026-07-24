@@ -65,9 +65,19 @@ struct LiveMapView: View {
             if store.orbitPath.count >= 2 {
                 MapPolyline(coordinates: store.orbitPath)
                     .stroke(
-                        ISSTheme.accent.opacity(0.55),
+                        ISSTheme.accent.opacity(0.5),
                         style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round, dash: [10, 8])
                     )
+
+                if let tip = store.orbitPath.last {
+                    Annotation("", coordinate: tip) {
+                        Image(systemName: "arrowtriangle.up.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(ISSTheme.accent.opacity(0.85))
+                            .shadow(color: .black.opacity(0.35), radius: 1, y: 1)
+                            .rotationEffect(.degrees(store.orbitPathEndBearing))
+                    }
+                }
             }
 
             Annotation("ISS", coordinate: CLLocationCoordinate2D(latitude: position.latitude, longitude: position.longitude)) {
@@ -107,7 +117,7 @@ private struct ISSMetricsCard: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Text("Dashed line shows the next ~2 minutes of orbit.")
+            Text("Dashed track shows ~5 min ahead; arrow is direction of travel.")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
 
