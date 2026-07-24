@@ -34,6 +34,11 @@ struct NextPassProvider: TimelineProvider {
     }
 }
 
+private enum WidgetPalette {
+    static let primaryText = Color.white
+    static let secondaryText = Color.white.opacity(0.72)
+}
+
 struct NextPassWidgetView: View {
     let entry: NextPassEntry
 
@@ -46,24 +51,27 @@ struct NextPassWidgetView: View {
                         Text("Next ISS pass")
                             .font(.caption.weight(.semibold))
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(WidgetPalette.secondaryText)
 
                     Text(snapshot.placeName)
                         .font(.headline)
                         .lineLimit(1)
+                        .foregroundStyle(WidgetPalette.primaryText)
 
                     if Date() >= snapshot.startDate, Date() <= snapshot.endDate {
                         Text("Visible now")
                             .font(.title3.weight(.bold))
+                            .foregroundStyle(WidgetPalette.primaryText)
                         Text("Ends \(snapshot.endDate, style: .time)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(WidgetPalette.secondaryText)
                     } else {
                         Text(snapshot.startDate, style: .relative)
                             .font(.title3.weight(.bold))
+                            .foregroundStyle(WidgetPalette.primaryText)
                         Text("\(snapshot.startDate.formatted(date: .abbreviated, time: .shortened)) · \(snapshot.startAzCompass)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(WidgetPalette.secondaryText)
                             .lineLimit(2)
                     }
                 }
@@ -71,9 +79,10 @@ struct NextPassWidgetView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ISS Tracker")
                         .font(.headline)
+                        .foregroundStyle(WidgetPalette.primaryText)
                     Text("Save a starred place in the app and search passes to show a countdown here.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(WidgetPalette.secondaryText)
                 }
             }
         }

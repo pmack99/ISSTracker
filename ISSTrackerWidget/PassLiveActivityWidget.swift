@@ -8,11 +8,13 @@ struct PassLiveActivityWidget: Widget {
             VStack(alignment: .leading, spacing: 6) {
                 Text("ISS Tracker")
                     .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.75))
                 Text(context.state.statusLine)
                     .font(.headline)
+                    .foregroundStyle(.white)
                 Text("\(context.attributes.placeName) · look \(context.attributes.startAzCompass)")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.75))
             }
             .padding()
             .activityBackgroundTint(Color(red: 0.05, green: 0.08, blue: 0.16))
