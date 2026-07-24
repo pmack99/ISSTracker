@@ -22,6 +22,8 @@ struct AboutView: View {
                         Text("Data sources")
                             .font(.headline)
                         sourceRow("Live position", detail: "Where The ISS At", icon: "antenna.radiowaves.left.and.right")
+                        sourceRow("Crew on board", detail: "Open Notify", icon: "person.2")
+                        sourceRow("Cabin environment", detail: "NASA ISSLIVE · Lightstreamer", icon: "house")
                         sourceRow("Visible passes", detail: "ISS Tracker API", icon: "eye")
                         sourceRow("Geocoding", detail: "Apple MapKit", icon: "mappin.and.ellipse")
                         sourceRow("Photos", detail: "NASA Image and Video Library", icon: "photo")

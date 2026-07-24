@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		52FBC0303013ADB3005414B9 /* LightstreamerClientCompact in Frameworks */ = {isa = PBXBuildFile; productRef = B50000022F00000500000002 /* LightstreamerClientCompact */; };
 		A20000102F00000200000010 /* ISSTrackerWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A20000012F00000200000001 /* ISSTrackerWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -73,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				52FBC0303013ADB3005414B9 /* LightstreamerClientCompact in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,6 +148,7 @@
 			);
 			name = ISSTracker;
 			packageProductDependencies = (
+				B50000022F00000500000002 /* LightstreamerClientCompact */,
 			);
 			productName = ISSTracker;
 			productReference = A10000012F00000100000001 /* ISSTracker.app */;
@@ -227,6 +230,9 @@
 			);
 			mainGroup = A10000042F00000100000004;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B50000012F00000500000001 /* XCRemoteSwiftPackageReference "Lightstreamer-lib-client-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000052F00000100000005 /* Products */;
 			projectDirPath = "";
@@ -565,6 +571,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B50000012F00000500000001 /* XCRemoteSwiftPackageReference "Lightstreamer-lib-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lightstreamer/Lightstreamer-lib-client-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B50000022F00000500000002 /* LightstreamerClientCompact */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B50000012F00000500000001 /* XCRemoteSwiftPackageReference "Lightstreamer-lib-client-swift" */;
+			productName = LightstreamerClientCompact;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A100000A2F0000010000000A /* Project object */;
 }

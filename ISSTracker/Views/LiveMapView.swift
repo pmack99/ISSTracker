@@ -8,6 +8,7 @@ struct LiveMapView: View {
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var mapSpan = MKCoordinateSpan(latitudeDelta: 40, longitudeDelta: 40)
     @State private var suppressCameraTracking = false
+    @State private var expandedBottomPanel: LiveMapBottomPanel?
 
     var body: some View {
         NavigationStack {
@@ -59,23 +60,23 @@ struct LiveMapView: View {
                         ProgressView()
                     } else {
                         Button {
-                            Task { await store.refreshPosition() }
+                            Task {
+                                await store.refreshPosition()
+                                await store.refreshCrew()
+                            }
                         } label: {
                             Label("Refresh", systemImage: "arrow.clockwise")
                         }
                     }
                 }
             }
-            .refreshable { await store.refreshPosition() }
-            .safeAreaInset(edge: .bottom) {
-                if let position = store.position {
-                    ISSMetricsCard(position: position, followISS: followISS)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
-                }
+            .refreshable {
+                await store.refreshPosition()
+                await store.refreshCrew()
             }
             .onAppear {
                 store.startLiveUpdates()
+                Task { await store.refreshCrew() }
                 if followISS, let position = store.position {
                     let coordinate = ISSMotionInterpolator.coordinate(
                         at: .now,
@@ -130,6 +131,19 @@ struct LiveMapView: View {
             }
         }
         .mapStyle(.hybrid(elevation: .realistic))
+        .overlay(alignment: .bottom) {
+            LiveMapBottomDock(
+                expandedPanel: $expandedBottomPanel,
+                position: store.position,
+                followISS: followISS,
+                crew: store.issCrew,
+                isLoadingCrew: store.isLoadingCrew,
+                crewError: store.crewError,
+                cabin: store.cabinTelemetry,
+                cabinStatusMessage: store.cabinStatusMessage,
+                onRetryCrew: { await store.refreshCrew() }
+            )
+        }
         .onMapCameraChange(frequency: .continuous) { context in
             mapSpan = context.region.span
         }
@@ -156,60 +170,6 @@ struct LiveMapView: View {
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(400))
             suppressCameraTracking = false
-        }
-    }
-}
-
-private struct ISSMetricsCard: View {
-    let position: ISSPosition
-    let followISS: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Live telemetry")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                ISSStatusBadge(text: position.visibilityLabel, tint: visibilityTint)
-            }
-
-            Text("Updated \(position.updatedAt.formatted(date: .abbreviated, time: .standard)) · refreshes every 30s")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            Text(followISS
-                ? "Marker glides between updates · Follow ISS re-centers on each refresh (pan or pinch to turn off)."
-                : "Marker glides between updates · Follow ISS is off.")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-
-            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
-                GridRow {
-                    metric("Latitude", value: String(format: "%.4f°", position.latitude), icon: "lines.measurement.horizontal")
-                    metric("Longitude", value: String(format: "%.4f°", position.longitude), icon: "lines.measurement.vertical")
-                }
-                GridRow {
-                    metric("Altitude", value: String(format: "%.0f km", position.altitude), icon: "arrow.up.and.down")
-                    metric("Speed", value: String(format: "%.0f km/h", position.velocity), icon: "speedometer")
-                }
-            }
-        }
-        .issGroupedCard()
-        .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
-    }
-
-    private var visibilityTint: Color {
-        position.visibility.lowercased() == "daylight" ? .yellow : .cyan
-    }
-
-    private func metric(_ title: String, value: String, icon: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Label(title, systemImage: icon)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.subheadline.weight(.semibold))
-                .monospacedDigit()
         }
     }
 }

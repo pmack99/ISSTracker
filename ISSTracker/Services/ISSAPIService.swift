@@ -91,4 +91,19 @@ struct ISSAPIService {
         }
         return items
     }
+
+    func fetchPeopleInSpace() async throws -> PeopleInSpaceResponse {
+        guard let url = URL(string: "http://api.open-notify.org/astros.json") else {
+            throw ISSAPIError.invalidURL
+        }
+        let (data, response) = try await session.data(from: url)
+        guard let http = response as? HTTPURLResponse, (200 ..< 300).contains(http.statusCode) else {
+            throw ISSAPIError.badResponse
+        }
+        let decoded = try JSONDecoder().decode(PeopleInSpaceResponse.self, from: data)
+        guard decoded.message.lowercased() == "success" else {
+            throw ISSAPIError.badResponse
+        }
+        return decoded
+    }
 }

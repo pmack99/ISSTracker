@@ -18,15 +18,30 @@ final class ISSTrackerStore {
     var passesError: String?
     var galleryError: String?
 
+    var issCrew: [SpaceTraveler] = []
+    var isLoadingCrew = false
+    var crewError: String?
+
+    var cabinTelemetry = ISSCabinTelemetry.empty
+    var cabinStatusMessage: String?
+
     var lastSearchLabel: String?
     var lastSearchLatitude: Double?
     var lastSearchLongitude: Double?
 
     private let api = ISSAPIService()
+    private let cabinStream = ISSLiveCabinStreamService()
     private var refreshTask: Task<Void, Never>?
 
     func startLiveUpdates() {
         refreshTask?.cancel()
+        cabinStream.onTelemetryChange = { [weak self] telemetry in
+            self?.cabinTelemetry = telemetry
+        }
+        cabinStream.onStatusChange = { [weak self] message in
+            self?.cabinStatusMessage = message
+        }
+        cabinStream.start()
         refreshTask = Task {
             while !Task.isCancelled {
                 await refreshPosition()
@@ -38,6 +53,7 @@ final class ISSTrackerStore {
     func stopLiveUpdates() {
         refreshTask?.cancel()
         refreshTask = nil
+        cabinStream.stop()
     }
 
     func refreshPosition() async {
@@ -51,6 +67,18 @@ final class ISSTrackerStore {
             positionError = error.localizedDescription
         }
         isLoadingPosition = false
+    }
+
+    func refreshCrew() async {
+        isLoadingCrew = issCrew.isEmpty
+        crewError = nil
+        do {
+            let response = try await api.fetchPeopleInSpace()
+            issCrew = response.issCrew
+        } catch {
+            crewError = error.localizedDescription
+        }
+        isLoadingCrew = false
     }
 
     func searchPasses(
