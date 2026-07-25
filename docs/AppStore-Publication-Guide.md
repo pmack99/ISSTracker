@@ -64,7 +64,7 @@ Fill in **App Store** tab → **iOS App** → version **1.0**:
 - **Primary:** Education *or* Reference  
 - **Secondary:** Utilities *or* Weather (optional)
 
-**Copyright:** `© 2026 Preston Mack` (or `© 2026 3PM Studios` if you publish under that name)
+**Copyright:** `© 2026 3PM Studios`
 
 **Age rating:** Complete the questionnaire honestly (see §8).
 

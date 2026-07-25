@@ -14,22 +14,21 @@ struct LiveMapView: View {
         NavigationStack {
             Group {
                 if let position = store.position {
-                    TimelineView(.animation(minimumInterval: 1.0 / 15.0)) { timeline in
-                        let displayCoordinate = ISSMotionInterpolator.coordinate(
-                            at: timeline.date,
-                            current: position,
-                            previous: store.motionPreviousPosition
-                        )
-                        let displayPosition = ISSMotionInterpolator.displayPosition(
-                            at: timeline.date,
-                            current: position,
-                            previous: store.motionPreviousPosition
-                        )
-                        mapContent(
-                            displayCoordinate: displayCoordinate,
-                            displayPosition: displayPosition
-                        )
-                    }
+                    LiveMapTrackContent(
+                        position: position,
+                        motionPrevious: store.motionPreviousPosition,
+                        followISS: $followISS,
+                        cameraPosition: $cameraPosition,
+                        mapSpan: $mapSpan,
+                        suppressCameraTracking: $suppressCameraTracking,
+                        expandedBottomPanel: $expandedBottomPanel,
+                        crew: store.issCrew,
+                        isLoadingCrew: store.isLoadingCrew,
+                        crewError: store.crewError,
+                        cabin: store.cabinTelemetry,
+                        cabinStatusMessage: store.cabinStatusMessage,
+                        onRetryCrew: { await store.refreshCrew() }
+                    )
                 } else if store.isLoadingPosition {
                     ISSLoadingView(message: "Fetching ISS position…")
                 } else {
@@ -85,57 +84,92 @@ struct LiveMapView: View {
             .onAppear {
                 store.setLiveTabVisible(true)
                 Task { await store.refreshCrew() }
-                if followISS, let position = store.position {
-                    let coordinate = ISSMotionInterpolator.coordinate(
-                        at: .now,
-                        current: position,
-                        previous: store.motionPreviousPosition
-                    )
-                    recenter(on: coordinate)
-                }
             }
             .onDisappear { store.setLiveTabVisible(false) }
-            .onChange(of: store.position) { _, newValue in
-                guard followISS, let newValue else { return }
-                let coordinate = ISSMotionInterpolator.coordinate(
-                    at: .now,
-                    current: newValue,
-                    previous: store.motionPreviousPosition
-                )
-                recenter(on: coordinate)
-            }
         }
         .tint(ISSTheme.accent)
     }
 
-    @ViewBuilder
-    private func mapContent(
-        displayCoordinate: CLLocationCoordinate2D,
-        displayPosition: ISSPosition
-    ) -> some View {
+    private func recenter(on coordinate: CLLocationCoordinate2D) {
+        suppressCameraTracking = true
+        cameraPosition = .region(
+            MKCoordinateRegion(center: coordinate, span: mapSpan)
+        )
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(400))
+            suppressCameraTracking = false
+        }
+    }
+}
+
+/// Stable Map instance; only annotation coordinates update on a timer (not the whole Map view tree).
+private struct LiveMapTrackContent: View {
+    let position: ISSPosition
+    let motionPrevious: ISSPosition?
+    @Binding var followISS: Bool
+    @Binding var cameraPosition: MapCameraPosition
+    @Binding var mapSpan: MKCoordinateSpan
+    @Binding var suppressCameraTracking: Bool
+    @Binding var expandedBottomPanel: LiveMapBottomPanel?
+
+    let crew: [SpaceTraveler]
+    let isLoadingCrew: Bool
+    let crewError: String?
+    let cabin: ISSCabinTelemetry
+    let cabinStatusMessage: String?
+    var onRetryCrew: () async -> Void
+
+    @State private var displayCoordinate: CLLocationCoordinate2D
+    @State private var displayPosition: ISSPosition
+
+    init(
+        position: ISSPosition,
+        motionPrevious: ISSPosition?,
+        followISS: Binding<Bool>,
+        cameraPosition: Binding<MapCameraPosition>,
+        mapSpan: Binding<MKCoordinateSpan>,
+        suppressCameraTracking: Binding<Bool>,
+        expandedBottomPanel: Binding<LiveMapBottomPanel?>,
+        crew: [SpaceTraveler],
+        isLoadingCrew: Bool,
+        crewError: String?,
+        cabin: ISSCabinTelemetry,
+        cabinStatusMessage: String?,
+        onRetryCrew: @escaping () async -> Void
+    ) {
+        self.position = position
+        self.motionPrevious = motionPrevious
+        _followISS = followISS
+        _cameraPosition = cameraPosition
+        _mapSpan = mapSpan
+        _suppressCameraTracking = suppressCameraTracking
+        _expandedBottomPanel = expandedBottomPanel
+        self.crew = crew
+        self.isLoadingCrew = isLoadingCrew
+        self.crewError = crewError
+        self.cabin = cabin
+        self.cabinStatusMessage = cabinStatusMessage
+        self.onRetryCrew = onRetryCrew
+
+        let initial = ISSMotionInterpolator.coordinate(
+            at: .now,
+            current: position,
+            previous: motionPrevious
+        )
+        _displayCoordinate = State(initialValue: initial)
+        _displayPosition = State(
+            initialValue: ISSMotionInterpolator.displayPosition(
+                at: .now,
+                current: position,
+                previous: motionPrevious
+            )
+        )
+    }
+
+    var body: some View {
         Map(position: $cameraPosition) {
             Annotation("", coordinate: displayCoordinate) {
-                VStack(spacing: 4) {
-                    Image("ISSMarker")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 48, height: 48)
-                        .shadow(color: ISSTheme.liveMapISS.opacity(0.55), radius: 10)
-                        .overlay {
-                            Circle()
-                                .strokeBorder(ISSTheme.liveMapISS, lineWidth: 2.5)
-                                .frame(width: 52, height: 52)
-                        }
-
-                    Text("ISS")
-                        .font(.caption.weight(.heavy))
-                        .foregroundStyle(ISSTheme.liveMapISS)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(.white.opacity(0.92), in: Capsule())
-                        .overlay(Capsule().strokeBorder(ISSTheme.liveMapISS, lineWidth: 1.5))
-                        .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
-                }
+                issMarker
             }
         }
         .mapStyle(.hybrid(elevation: .realistic))
@@ -144,12 +178,12 @@ struct LiveMapView: View {
                 expandedPanel: $expandedBottomPanel,
                 position: displayPosition,
                 followISS: followISS,
-                crew: store.issCrew,
-                isLoadingCrew: store.isLoadingCrew,
-                crewError: store.crewError,
-                cabin: store.cabinTelemetry,
-                cabinStatusMessage: store.cabinStatusMessage,
-                onRetryCrew: { await store.refreshCrew() }
+                crew: crew,
+                isLoadingCrew: isLoadingCrew,
+                crewError: crewError,
+                cabin: cabin,
+                cabinStatusMessage: cabinStatusMessage,
+                onRetryCrew: onRetryCrew
             )
         }
         .onMapCameraChange(frequency: .continuous) { context in
@@ -168,9 +202,69 @@ struct LiveMapView: View {
                 followISS = false
             }
         }
+        .task(id: position.timestamp) {
+            await runMotionLoop()
+        }
+        .onAppear {
+            if followISS {
+                recenterCamera(on: displayCoordinate)
+            }
+        }
+        .onChange(of: position.timestamp) { _, _ in
+            if followISS {
+                let coordinate = ISSMotionInterpolator.coordinate(
+                    at: .now,
+                    current: position,
+                    previous: motionPrevious
+                )
+                recenterCamera(on: coordinate)
+            }
+        }
     }
 
-    private func recenter(on coordinate: CLLocationCoordinate2D) {
+    private var issMarker: some View {
+        VStack(spacing: 4) {
+            Image("ISSMarker")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 48, height: 48)
+                .shadow(color: ISSTheme.liveMapISS.opacity(0.55), radius: 10)
+                .overlay {
+                    Circle()
+                        .strokeBorder(ISSTheme.liveMapISS, lineWidth: 2.5)
+                        .frame(width: 52, height: 52)
+                }
+
+            Text("ISS")
+                .font(.caption.weight(.heavy))
+                .foregroundStyle(ISSTheme.liveMapISS)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(.white.opacity(0.92), in: Capsule())
+                .overlay(Capsule().strokeBorder(ISSTheme.liveMapISS, lineWidth: 1.5))
+                .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+        }
+    }
+
+    private func runMotionLoop() async {
+        let frameInterval = 1.0 / 15.0
+        while !Task.isCancelled {
+            let date = Date()
+            displayCoordinate = ISSMotionInterpolator.coordinate(
+                at: date,
+                current: position,
+                previous: motionPrevious
+            )
+            displayPosition = ISSMotionInterpolator.displayPosition(
+                at: date,
+                current: position,
+                previous: motionPrevious
+            )
+            try? await Task.sleep(for: .seconds(frameInterval))
+        }
+    }
+
+    private func recenterCamera(on coordinate: CLLocationCoordinate2D) {
         suppressCameraTracking = true
         cameraPosition = .region(
             MKCoordinateRegion(center: coordinate, span: mapSpan)

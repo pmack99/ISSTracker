@@ -13,7 +13,7 @@ struct AboutView: View {
                             .font(.title2.weight(.bold))
                             .foregroundStyle(ISSTheme.accent)
 
-                        Text("Originally built by Preston Mack, Christine Deer, Sarah Sefcik, and Jennifer Gibson at UCF Coding Bootcamp. This iPhone app continues the project with native maps, location, reminders, and on-device history.")
+                        Text("Originally built by Preston Mack, Christine Deer, Sarah Sefcik, and Jennifer Gibson at UCF Coding Bootcamp. This iPhone app is published by 3PM Studios with native maps, location, reminders, and on-device history.")
                             .foregroundStyle(.secondary)
                     }
                     .issGroupedCard()

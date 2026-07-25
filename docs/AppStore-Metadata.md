@@ -104,10 +104,8 @@ https://pmack99.github.io/ISSTracker/privacy.html
 ## Copyright
 
 ```
-© 2026 Preston Mack
+© 2026 3PM Studios
 ```
-
-*(Change to your legal seller name if different in Connect.)*
 
 ---
 
