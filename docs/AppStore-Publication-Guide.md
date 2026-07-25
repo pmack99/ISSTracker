@@ -10,15 +10,31 @@ Use this document when creating the app in **App Store Connect** and submitting 
 
 | Item | Value / action |
 |------|----------------|
-| Apple Developer Program | Active membership (team **HF9W68H6LN** in Xcode) |
+| Apple Developer Program | Active membership (team **3PM Studios** — `52X2U8DP5Z` in Xcode) |
 | App Store Connect | [appstoreconnect.apple.com](https://appstoreconnect.apple.com) |
-| Bundle ID (app) | `com.pmack99.ISSTracker` |
-| Widget extension | `com.pmack99.ISSTracker.ISSTrackerWidget` |
+| Bundle ID (app) | `com.3pmstudios.ISSTracker` |
+| Widget extension | `com.3pmstudios.ISSTracker.ISSTrackerWidget` |
+| App Group | `group.com.3pmstudios.isstracker` (must match entitlements + `SharedPassSnapshot.appGroupID`) |
 | Display name | **ISS Tracker** |
 | Minimum iOS | **17.0** |
 | Primary device | iPhone (portrait) |
 | Price | Free (typical) |
 | Build secrets | Optional `Config/Secrets.xcconfig` for local overrides (pass predictions need no API key) |
+
+---
+
+## 1b. Register identifiers (3PM Studios team)
+
+In [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list), ensure the **3PM Studios** team is selected (not a personal team). Do **not** reuse `com.pmack99.ISSTracker` — that ID is registered on another team and will show *“not available”*.
+
+1. **App Group** → **+** → In the identifier field, enter **`com.3pmstudios.isstracker`** only (the portal adds the `group.` prefix). Result must be **`group.com.3pmstudios.isstracker`**, not `group.group.com.…` or `group..com.…`. Description: “ISS Tracker”. Register.  
+   - If you already created **`group.group.com.3pmstudios.isstracker`**, remove it and register again with just `com.3pmstudios.isstracker` in the box (or tell us and we can point Xcode at the double-`group` ID — not recommended).  
+   - If **`group.com.3pmstudios.isstracker`** is already on your team’s list, skip registration and use it on the App IDs below.
+2. **App IDs** → **+** → **App** → Explicit: **`com.3pmstudios.ISSTracker`**  
+   - Enable **App Groups** (select `group.com.3pmstudios.isstracker`) and **Live Activities** if listed. Register.
+3. **App IDs** → **+** → **App** → Explicit: **`com.3pmstudios.ISSTracker.ISSTrackerWidget`**  
+   - Enable **App Groups** (same group). Register.
+4. In Xcode: **ISSTracker** and **ISSTrackerWidget** targets → **Signing & Capabilities** → Team **3PM Studios** → **Try Again** until provisioning succeeds.
 
 ---
 
@@ -28,9 +44,9 @@ Use these in App Store Connect → **App Information** and **App Privacy** (Priv
 
 | Purpose | URL |
 |---------|-----|
-| Marketing | https://pmack99.github.io/ISSTracker/ |
-| Support | https://pmack99.github.io/ISSTracker/support.html |
-| Privacy Policy | https://pmack99.github.io/ISSTracker/privacy.html |
+| Marketing | https://3pmstudios.github.io/ISSTracker/ |
+| Support | https://3pmstudios.github.io/ISSTracker/support.html |
+| Privacy Policy | https://3pmstudios.github.io/ISSTracker/privacy.html |
 
 **Support email:** 3PMStudios@protonmail.com (also on support/privacy pages)
 
@@ -42,7 +58,7 @@ Use these in App Store Connect → **App Information** and **App Privacy** (Priv
 2. **Platforms:** iOS.
 3. **Name:** ISS Tracker (must be unique on the store; if taken, try “ISS Tracker – Live & Passes”).
 4. **Primary language:** English (U.S.).
-5. **Bundle ID:** select `com.pmack99.ISSTracker` (register in [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list) first if missing).
+5. **Bundle ID:** select `com.3pmstudios.ISSTracker` (register in [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list) first if missing).
 6. **SKU:** e.g. `ISSTracker-2026` (internal only, any unique string).
 7. **User Access:** Full Access (unless you use a limited role).
 
@@ -73,6 +89,10 @@ Fill in **App Store** tab → **iOS App** → version **1.0**:
 ## 5. Screenshots
 
 App Store Connect shows **required sizes** for your account; capture on the **largest iPhone** you target (e.g. iPhone 17 Pro Max simulator), then upload. As of typical 2025–2026 requirements, plan for **6.9"** and **6.7"** iPhone sets if Connect asks for both—always follow the exact pixel sizes Connect lists.
+
+### Marketing frames (optional)
+
+Pre-built **1284×2778** screenshots with headlines live in [`marketing/app-store/output/6.7-inch-1284x2778/`](../marketing/app-store/output/6.7-inch-1284x2778/). See [`marketing/app-store/README.md`](../marketing/app-store/README.md) to regenerate from full-resolution source PNGs.
 
 ### Recommended screens (5–8 shots)
 
@@ -120,7 +140,7 @@ Then declare:
 | **Diagnostics** | No | (App does not collect crash reports itself; Apple may offer opt-in crash data separately) |
 | **Other Data** | No | |
 
-**Privacy Policy URL:** https://pmack99.github.io/ISSTracker/privacy.html
+**Privacy Policy URL:** https://3pmstudios.github.io/ISSTracker/privacy.html
 
 ### Third-party data
 
@@ -230,7 +250,7 @@ Review often takes 24–48 hours; rejections commonly cite missing privacy detai
 ## 13. Checklist (printable)
 
 - [ ] Developer Program active  
-- [ ] Bundle IDs registered (app + widget)  
+- [ ] App Group + Bundle IDs registered on **3PM Studios** (§1b)  
 - [ ] App record created in Connect  
 - [ ] Privacy Policy, Support, Marketing URLs live  
 - [ ] Metadata pasted (subtitle, description, keywords)  

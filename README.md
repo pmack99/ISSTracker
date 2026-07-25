@@ -1,6 +1,8 @@
 # ISS Tracker (iOS)
 
-Native iPhone port of [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew_ISS_Tracker).
+**Repository:** [github.com/3PMStudios/ISSTracker](https://github.com/3PMStudios/ISSTracker)
+
+Native iPhone port of [Brandnew_ISS_Tracker](https://github.com/pmack99/Brandnew_ISS_Tracker). © 3PM Studios.
 
 ## Open in Xcode
 
@@ -38,9 +40,9 @@ Static **marketing**, **support**, and **privacy** pages live in [`docs/`](docs/
 
 1. On GitHub: **Settings → Pages → Build from branch** → branch `main`, folder **`/docs`**.
 2. After deploy, URLs are typically:
-   - Marketing: `https://pmack99.github.io/ISSTracker/`
-   - Support: `https://pmack99.github.io/ISSTracker/support.html`
-   - Privacy: `https://pmack99.github.io/ISSTracker/privacy.html`
+   - Marketing: `https://3pmstudios.github.io/ISSTracker/`
+   - Support: `https://3pmstudios.github.io/ISSTracker/support.html`
+   - Privacy: `https://3pmstudios.github.io/ISSTracker/privacy.html`
 
 **App Store submission:** [publication guide](docs/AppStore-Publication-Guide.md) · [metadata copy-paste](docs/AppStore-Metadata.md)
 

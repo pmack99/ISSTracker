@@ -53,8 +53,8 @@ No account required. Pass history and saved places stay on your device. Location
 
 ISS Tracker continues an open-source project from the UCF Coding Bootcamp, rebuilt as a native SwiftUI app with MapKit.
 
-Support: https://pmack99.github.io/ISSTracker/support.html
-Privacy: https://pmack99.github.io/ISSTracker/privacy.html
+Support: https://3pmstudios.github.io/ISSTracker/support.html
+Privacy: https://3pmstudios.github.io/ISSTracker/privacy.html
 ```
 
 ---
@@ -80,7 +80,7 @@ Welcome to ISS Tracker for iPhone—live map with crew and cabin panels, visible
 ## Support URL
 
 ```
-https://pmack99.github.io/ISSTracker/support.html
+https://3pmstudios.github.io/ISSTracker/support.html
 ```
 
 ---
@@ -88,7 +88,7 @@ https://pmack99.github.io/ISSTracker/support.html
 ## Marketing URL (optional)
 
 ```
-https://pmack99.github.io/ISSTracker/
+https://3pmstudios.github.io/ISSTracker/
 ```
 
 ---
@@ -96,7 +96,7 @@ https://pmack99.github.io/ISSTracker/
 ## Privacy Policy URL
 
 ```
-https://pmack99.github.io/ISSTracker/privacy.html
+https://3pmstudios.github.io/ISSTracker/privacy.html
 ```
 
 ---
@@ -124,7 +124,7 @@ HOW TO TEST:
 No special hardware is required. The app is iPhone-only, portrait, iOS 17+.
 
 Support email: 3PMStudios@protonmail.com
-Privacy policy: https://pmack99.github.io/ISSTracker/privacy.html
+Privacy policy: https://3pmstudios.github.io/ISSTracker/privacy.html
 ```
 
 ---

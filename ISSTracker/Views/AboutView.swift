@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let supportURL = URL(string: "https://pmack99.github.io/ISSTracker/support.html")!
-    private let privacyURL = URL(string: "https://pmack99.github.io/ISSTracker/privacy.html")!
+    private let supportURL = URL(string: "https://3pmstudios.github.io/ISSTracker/support.html")!
+    private let privacyURL = URL(string: "https://3pmstudios.github.io/ISSTracker/privacy.html")!
 
     var body: some View {
         NavigationStack {

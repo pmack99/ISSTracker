@@ -22,7 +22,7 @@ struct SharedPassSnapshot: Codable, Equatable {
 }
 
 enum SharedPassStorage {
-    static let appGroupID = "group.com.pmack99.ISSTracker"
+    static let appGroupID = "group.com.3pmstudios.isstracker"
     private static let snapshotKey = "nextPassSnapshot"
     private static let trackedPassStartKey = "trackedPassStartUTC"
 
