@@ -96,7 +96,7 @@ struct LiveMapView: View {
             MKCoordinateRegion(center: coordinate, span: mapSpan)
         )
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(400))
+            try? await Task.sleep(for: .milliseconds(450))
             suppressCameraTracking = false
         }
     }
@@ -121,6 +121,7 @@ private struct LiveMapTrackContent: View {
 
     @State private var displayCoordinate: CLLocationCoordinate2D
     @State private var displayPosition: ISSPosition
+    @State private var ignoreUserPanChecksUntil: Date?
 
     init(
         position: ISSPosition,
@@ -164,6 +165,11 @@ private struct LiveMapTrackContent: View {
                 previous: motionPrevious
             )
         )
+
+        let span = mapSpan.wrappedValue
+        cameraPosition.wrappedValue = .region(
+            MKCoordinateRegion(center: initial, span: span)
+        )
     }
 
     var body: some View {
@@ -191,6 +197,7 @@ private struct LiveMapTrackContent: View {
         }
         .onMapCameraChange(frequency: .onEnd) { context in
             guard followISS, !suppressCameraTracking else { return }
+            if let until = ignoreUserPanChecksUntil, Date() < until { return }
             let mapCenter = context.region.center
             let latDelta = abs(mapCenter.latitude - displayCoordinate.latitude)
             let lonDelta = abs(mapCenter.longitude - displayCoordinate.longitude)
@@ -203,22 +210,25 @@ private struct LiveMapTrackContent: View {
             }
         }
         .task(id: position.timestamp) {
+            let coordinate = ISSMotionInterpolator.coordinate(
+                at: .now,
+                current: position,
+                previous: motionPrevious
+            )
+            pinCamera(on: coordinate, animated: followISS)
             await runMotionLoop()
         }
         .onAppear {
-            if followISS {
-                recenterCamera(on: displayCoordinate)
-            }
+            pinCamera(on: displayCoordinate, animated: false)
         }
         .onChange(of: position.timestamp) { _, _ in
-            if followISS {
-                let coordinate = ISSMotionInterpolator.coordinate(
-                    at: .now,
-                    current: position,
-                    previous: motionPrevious
-                )
-                recenterCamera(on: coordinate)
-            }
+            guard followISS else { return }
+            let coordinate = ISSMotionInterpolator.coordinate(
+                at: .now,
+                current: position,
+                previous: motionPrevious
+            )
+            pinCamera(on: coordinate, animated: true)
         }
     }
 
@@ -264,13 +274,14 @@ private struct LiveMapTrackContent: View {
         }
     }
 
-    private func recenterCamera(on coordinate: CLLocationCoordinate2D) {
+    private func pinCamera(on coordinate: CLLocationCoordinate2D, animated: Bool) {
         suppressCameraTracking = true
+        ignoreUserPanChecksUntil = Date().addingTimeInterval(animated ? 0.9 : 0.35)
         cameraPosition = .region(
             MKCoordinateRegion(center: coordinate, span: mapSpan)
         )
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(400))
+            try? await Task.sleep(for: .milliseconds(animated ? 450 : 200))
             suppressCameraTracking = false
         }
     }
