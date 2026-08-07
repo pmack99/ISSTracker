@@ -77,6 +77,14 @@ Welcome to ISS Tracker for iPhone—live map with crew and cabin panels, visible
 
 ---
 
+## What's New — version 1.0.1
+
+```
+Fixes overhead pass predictions when the primary pass service is unavailable. City, ZIP, and current-location searches should show visible passes again.
+```
+
+---
+
 ## Support URL
 
 ```
