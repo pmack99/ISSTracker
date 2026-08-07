@@ -13,7 +13,7 @@ struct AboutView: View {
                             .font(.title2.weight(.bold))
                             .foregroundStyle(ISSTheme.accent)
 
-                        Text("Originally built by Preston Mack, Christine Deer, Sarah Sefcik, and Jennifer Gibson at UCF Coding Bootcamp. This iPhone app is published by 3PM Studios with native maps, location, reminders, and on-device history.")
+                        Text("Originally developed as a group project in the University of Central Florida Coding Bootcamp. This iPhone app is published by 3PM Studios with native maps, location, reminders, and on-device history.")
                             .foregroundStyle(.secondary)
                     }
                     .issGroupedCard()
@@ -24,7 +24,7 @@ struct AboutView: View {
                         sourceRow("Live position", detail: "Where The ISS At", icon: "antenna.radiowaves.left.and.right")
                         sourceRow("Crew on board", detail: "Open Notify", icon: "person.2")
                         sourceRow("Cabin environment", detail: "NASA ISSLIVE · Lightstreamer", icon: "house")
-                        sourceRow("Visible passes", detail: "ISS Tracker API", icon: "eye")
+                        sourceRow("Visible passes", detail: "Pollux ISS Pass API", icon: "eye")
                         sourceRow("Geocoding", detail: "Apple MapKit", icon: "mappin.and.ellipse")
                         sourceRow("Photos", detail: "NASA Image and Video Library", icon: "photo")
                     }
