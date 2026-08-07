@@ -34,13 +34,36 @@ struct ISSAPIService {
     }
 
     func fetchVisualPasses(latitude: Double, longitude: Double, days: Int = 10, maxPasses: Int = 300) async throws -> [ISSPass] {
-        var components = URLComponents(string: ISSTrackerPassAPI.baseURL)!
-        components.queryItems = [
-            URLQueryItem(name: "lat", value: String(latitude)),
-            URLQueryItem(name: "lon", value: String(longitude)),
-            URLQueryItem(name: "days", value: String(min(max(days, 1), 30))),
-        ]
-        guard let url = components.url else { throw ISSAPIError.invalidURL }
+        do {
+            let polluxPasses = try await fetchPolluxPasses(latitude: latitude, longitude: longitude)
+            guard !polluxPasses.isEmpty else { throw ISSAPIError.noPasses }
+            return limited(polluxPasses, maxPasses: maxPasses)
+        } catch ISSAPIError.noPasses {
+            throw ISSAPIError.noPasses
+        } catch {
+            let cdnPasses = try await fetchCDNPasses(latitude: latitude, longitude: longitude, days: days)
+            return limited(cdnPasses, maxPasses: maxPasses)
+        }
+    }
+
+    private func fetchPolluxPasses(latitude: Double, longitude: Double) async throws -> [ISSPass] {
+        guard let url = ISSTrackerPassAPI.polluxURL(latitude: latitude, longitude: longitude) else {
+            throw ISSAPIError.invalidURL
+        }
+
+        let (data, response) = try await session.data(from: url)
+        guard let http = response as? HTTPURLResponse, (200 ..< 300).contains(http.statusCode) else {
+            throw ISSAPIError.badResponse
+        }
+
+        let decoded = try JSONDecoder().decode(PolluxPassResponse.self, from: data)
+        return ISSTrackerPassAPI.mapPasses(from: decoded.passes)
+    }
+
+    private func fetchCDNPasses(latitude: Double, longitude: Double, days: Int) async throws -> [ISSPass] {
+        guard let url = ISSTrackerPassAPI.cdnURL(latitude: latitude, longitude: longitude, days: days) else {
+            throw ISSAPIError.invalidURL
+        }
 
         let (data, response) = try await session.data(from: url)
         guard let http = response as? HTTPURLResponse, (200 ..< 300).contains(http.statusCode) else {
@@ -50,10 +73,12 @@ struct ISSAPIService {
         let decoded = try JSONDecoder().decode([CDNPassRecord].self, from: data)
         let passes = ISSTrackerPassAPI.mapPasses(from: decoded)
         guard !passes.isEmpty else { throw ISSAPIError.noPasses }
-        if passes.count > maxPasses {
-            return Array(passes.prefix(maxPasses))
-        }
         return passes
+    }
+
+    private func limited(_ passes: [ISSPass], maxPasses: Int) -> [ISSPass] {
+        guard passes.count > maxPasses else { return passes }
+        return Array(passes.prefix(maxPasses))
     }
 
     func fetchISSImages(limit: Int = 40) async throws -> [NASAImageItem] {

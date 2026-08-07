@@ -28,7 +28,7 @@ Also: **Live Activity** on supported iPhones for pass countdown (Lock Screen / D
 ## APIs
 
 - [Where The ISS At](https://wheretheiss.at/) — live position
-- [ISS Tracker API](https://iss.cdnspace.ca/) — visible pass predictions (no API key)
+- [ISS Tracker API](https://iss.cdnspace.ca/) — visible pass predictions (Pollux fallback when unavailable; no API key)
 - [Open Notify](http://open-notify.org/) — people in space (crew)
 - NASA **ISSLIVE** / Lightstreamer — cabin environment telemetry
 - Apple **Core Location** / **CLGeocoder** — geocoding

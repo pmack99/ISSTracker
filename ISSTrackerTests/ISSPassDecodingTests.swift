@@ -64,6 +64,39 @@ struct ISSPassDecodingTests {
         #expect(pass.startAzCompass == "SW")
     }
 
+    @Test func decodesPolluxPassPayloadAndMapsToISSPass() throws {
+        let json = """
+        {
+          "passes": [{
+            "rise": {
+              "time": "2026-08-13T09:51:06Z",
+              "azimuth_deg": 171.4,
+              "compass": "S"
+            },
+            "culmination": {
+              "time": "2026-08-13T09:53:26Z",
+              "elevation_deg": 17.9
+            },
+            "set": {
+              "time": "2026-08-13T09:55:47Z",
+              "azimuth_deg": 81.2,
+              "compass": "E"
+            },
+            "duration_sec": 281
+          }]
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(PolluxPassResponse.self, from: json)
+        #expect(decoded.passes.count == 1)
+
+        let pass = try #require(ISSPass(from: decoded.passes[0]))
+        #expect(pass.duration == 281)
+        #expect(pass.maxEl == 17.9)
+        #expect(pass.startAzCompass == "S")
+        #expect(pass.endAzCompass == "E")
+    }
+
     @Test func durationFormattedIncludesMinutesAndSeconds() {
         let pass = ISSPass(
             startUTC: 0,
